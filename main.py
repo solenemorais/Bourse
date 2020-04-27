@@ -16,7 +16,7 @@ import os
 url="https://coinmarketcap.com/currencies/bitcoin/"
 
 timeA=0
-timeB=10
+timeB=20
 
 if os.path.exists('output.xlsx') == True:
     dataFrame_excel=pd.read_excel('output.xlsx')
@@ -27,7 +27,7 @@ else:
     i=0
 
 while (1):
-    time.sleep(10-(timeB-timeA))
+    time.sleep(20-(timeB-timeA))
     timeA=time.process_time()
     
     local_time=time.localtime()
@@ -40,30 +40,28 @@ while (1):
     page=requests.get(url)
     soup=BeautifulSoup(page.text,'lxml')
     element=soup.find('div',{"class":"cmc-details-panel-about__table"}).find_all('div')   
-    dataFrame.loc[i]=[float(element[2].text[1:-4].replace(',','')),date,time_h_min_sec,time_h_min,time_h,day,local_time.tm_min,local_time.tm_hour,local_time.tm_mday]
+    dataFrame.loc[i]=[float(element[2].text[1:-4].replace('.','').replace(',','.')),date,time_h_min_sec,time_h_min,time_h,day,local_time.tm_min,local_time.tm_hour,local_time.tm_mday]
     
     plt.title("Cours BTC")
     plt.ylabel('Valeur BTC-USD')
     plt.xlabel('Heure')
+    plt.plot(dataFrame.data,color='orange')
     
     if dataFrame.loc[0].min == local_time.tm_min+10 :
-        xlabels=dataFrame.time_h_min.unique()
-        plt.plot(dataFrame.time,dataFrame.data,color='orange')
+        xlabels=dataFrame.time.unique()
         plt.xticks(dataFrame.time,rotation=45)
     elif dataFrame.loc[0].hour==local_time.tm_hour:
         xlabels=dataFrame.time_h_min.unique()
-        plt.plot(dataFrame.data,color='orange')
         plt.xticks(np.arange(0,dataFrame.shape[0],step=dataFrame.shape[0]/len(xlabels)),xlabels,rotation=45)
-    elif (dataFrame.loc[0].hour+3) < local_time.tm_hour:
+    elif (dataFrame.loc[0].hour+3) > local_time.tm_hour:
+        xlabels=dataFrame.time_h_min.unique()
         for element in xlabels:
             if element[-1]!='0':
                 xlabels[np.where(xlabels == element)]=element[0:3]+element[-1].replace(element[-1],'0')
         xlabels=np.unique(xlabels)   
-        plt.plot(dataFrame.data,color='orange')
         plt.xticks(np.arange(0,dataFrame.shape[0],step=dataFrame.shape[0]/len(xlabels)),xlabels,rotation=45)
     else :
-        plt.plot(dataFrame.data,color='orange') 
-        xlabels=dataFrame.time_h.unique()[:-1 bn,; ]
+        xlabels=dataFrame.time_h.unique()[:-1]
         plt.xticks(np.arange(0,dataFrame.shape[0],step=dataFrame.shape[0]/len(xlabels)),xlabels,rotation=45)
     plt.show()
     dataFrame.to_excel("output.xlsx")
