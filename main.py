@@ -15,8 +15,6 @@ import os
 
 url="https://coinmarketcap.com/currencies/bitcoin/"
 
-timeA=0
-timeB=20
 
 if os.path.exists('output.xlsx') == True:
     dataFrame_excel=pd.read_excel('output.xlsx')
@@ -27,7 +25,6 @@ else:
     i=0
 
 while (1):
-    time.sleep(20-(timeB-timeA))
     timeA=time.process_time()
     
     local_time=time.localtime()
@@ -67,6 +64,7 @@ while (1):
     dataFrame.to_excel("output.xlsx")
     i+=1
     timeB=time.process_time()
+    time.sleep(20-(timeB-timeA))
     
 
     
