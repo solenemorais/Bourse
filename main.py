@@ -8,28 +8,28 @@ Created on Wed Apr 29 17:27:00 2020
 #Ce fichier sera le main du coup faudra pas changer le nom dans le différentes branche pour qu'on puisse les fusionner après
 
 #Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
-def BTC():#BITCOIN
+def get_BTC():#BITCOIN
     print("BTC")
 
-def ETH():#Ethereum
+def get_ETH():#Ethereum
     print("ETH")
     
-def LTC():#Litecoin
+def get_LTC():#Litecoin
     print("LTC")
 
-def MON():#Monero
+def get_MON():#Monero
     print("MON")
 
-def RIP():#Ripple
+def get_RIP():#Ripple
     print("RIP")
 
-def CAR():#Cardano
+def get_CAR():#Cardano
     print("CAR")
     
-def DAS():#Dash
+def get_DAS():#Dash
     print("DAS")
     
-def LIB():#Libra
+def get_LIB():#Libra
     print("LIB")
 
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
@@ -37,18 +37,18 @@ def LIB():#Libra
 monnaie="BTC"
 
 if monnaie=="BTC":
-    BTC()
+    get_BTC()
 elif monnaie=="ETH":
-    ETH()
+    get_ETH()
 elif monnaie=="LTC":
-    LTC()
+    get_LTC()
 elif monnaie=="MON":
-    MON()
+    get_MON()
 elif monnaie=="RIP":
-    RIP()
+    get_RIP()
 elif monnaie=="CAR":
-    CAR()
+    get_CAR()
 elif monnaie=="DAS":
-    DAS()
+    get_DAS()
 elif monnaie=="LIB":
-    LIB()
+    get_LIB()
