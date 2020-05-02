@@ -17,28 +17,29 @@ app.title('My App')
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 
 #Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
-def BTC():#BITCOIN   
-    print("BTC")    
 
-def ETH():#Ethereum
+def get_BTC():#BITCOIN
+    print("BTC")
+
+def get_ETH():#Ethereum
     print("ETH")
     
-def LTC():#Litecoin
+def get_LTC():#Litecoin
     print("LTC")
 
-def MON():#Monero
+def get_MON():#Monero
     print("MON")
 
-def RIP():#Ripple
+def get_RIP():#Ripple
     print("RIP")
 
-def CAR():#Cardano
+def get_CAR():#Cardano
     print("CAR")
     
-def DAS():#Dash
+def get_DAS():#Dash
     print("DAS")
     
-def LIB():#Libra
+def get_LIB():#Libra
     print("LIB")
 
 def choose_money(money):
@@ -89,4 +90,5 @@ def lauch():
     
 
 lauch()
+
 
