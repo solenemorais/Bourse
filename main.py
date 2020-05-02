@@ -44,21 +44,21 @@ def get_LIB():#Libra
 
 def choose_money(money):
     if money=="BTC":
-        BTC()
+        get_BTC()
     elif money=="ETH":
-        ETH()
+        get_ETH()
     elif money=="LTC":
-        LTC()
+        get_LTC()
     elif money=="MON":
-        MON()
+        get_MON()
     elif money=="RIP":
-        RIP()
+        get_RIP()
     elif money=="CAR":
-        CAR()
+        get_CAR()
     elif money=="DAS":
-        DAS()
+        get_DAS()
     elif money=="LIB":
-        LIB()
+        get_LIB()
 
 def lauch():
     #on crée une Frame qui va contenir les bouttons
