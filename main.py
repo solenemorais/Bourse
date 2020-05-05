@@ -12,6 +12,7 @@ from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import pandas as pd
 from datetime import datetime
 
 #Variables
