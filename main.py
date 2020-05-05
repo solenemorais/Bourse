@@ -10,9 +10,23 @@ Created on Wed Apr 29 17:27:00 2020
 #IMPORT
 import time
 from selenium import webdriver
-import pandas as pd
-import numpy as np
+
+#bibliothèques pour fichiers
+import csv
+import os.path
+
+#bibliothèque pour tracer le graphique dans la console
+import tkinter as tk
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from numpy import array
+
+#autres bibliothèques utiles
+import pandas as pd
+import time
+from datetime import datetime
+import tkinter as tk
 
 #CONSTANTE
 PAUSE=10
@@ -21,56 +35,56 @@ PAUSE=10
 dataFrame=pd.DataFrame({'data':[],'time':[]})
 
 #Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
-def BTC():#BITCOIN
-    print("BTC")
-
-def ETH():#Ethereum
-    print("ETH")
+def scrap(name,url):
+    get_data_csv(name)
     driver=webdriver.Firefox()
-    driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
+    driver.get(url)
     while(True):
         price=driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
-        localTime=time.localtime();
-        data_time=str(localTime.tm_hour)+":"+str(localTime.tm_min)+":"+str(localTime.tm_sec)
-        dataFrame.loc[dataFrame.shape[0]]=[float(price.text[:-4]),data_time]
-        print(dataFrame)
-        dataFrame.to_excel("ETH.xlsx")
+        dataFrame.loc[dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
+        filling_csv(name,dataFrame)
         time.sleep(PAUSE)
-        
-def LTC():#Litecoin
-    print("LTC")
 
-def MON():#Monero
-    print("MON")
+def get_data_csv(name):
+    filename=str(name+'.csv')
+    file_exists = os.path.isfile(filename)
+    if file_exists :
+        dataFrame=pd.read_csv('scrape_data.csv',sep="/")
 
-def RIP():#Ripple
-    print("RIP")
-
-def CAR():#Cardano
-    print("CAR")
-    
-def DAS():#Dash
-    print("DAS")
-    
-def LIB():#Libra
-    print("LIB")
-
+def filling_csv (name,df):
+    filename=str(name+'.csv')
+    file_exists = os.path.isfile(filename)
+    if file_exists :
+        with open(filename, 'a+', newline="") as csv_file:
+            fieldnames = ["Valeur", "Date"]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
+            for row in df.itertuples() :
+                writer.writerow({"Valeur" : row.data, "Date" : row.time})
+    else:
+        #---- CREATE A NEW CSV ----
+        with open(filename, 'w', newline="") as csv_file:
+            fieldnames = ["Valeur", "Date"]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
+            writer.writeheader()
+            for row in df.itertuples() :
+                writer.writerow({"Valeur" : row.data, "Date" : row.time})
+            
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 #Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
 monnaie="ETH"
 if monnaie=="BTC":
-    BTC()
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:BTC-EUR')
 elif monnaie=="ETH":
-    ETH()
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
 elif monnaie=="LTC":
-    LTC()
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:LTC-EUR')
 elif monnaie=="MON":
-    MON()
-elif monnaie=="RIP":
-    RIP()
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:MLN-EUR')
+elif monnaie=="EOS":
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:EOS-EUR')
 elif monnaie=="CAR":
-    CAR()
-elif monnaie=="DAS":
-    DAS()
-elif monnaie=="LIB":
-    LIB()
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ATOM-EUR')
+elif monnaie=="WAVE":
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:WAVES-EUR')
+elif monnaie=="DASH":
+    scrap(monnaie,'https://trade.kraken.com/fr-fr/charts/KRAKEN:DASH-EUR')
