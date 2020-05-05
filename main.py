@@ -18,6 +18,7 @@ from datetime import datetime
 #Variables
 app = tk.Tk()
 app.title('VisioCrypto')
+app.wm_iconbitmap('icon.ico')
 
 global GLOBAL_COUNTER
 GLOBAL_COUNTER = 1
@@ -74,33 +75,27 @@ def lauch():
     PATH_FILE_NAME = "scrape_data.csv"
     
     df = pd.read_csv(PATH_FILE_NAME, sep=";")
-    print(df.dtypes)
     
     df["Date"] = df["Date"].astype(str)
     df["Date"] = df["Date"].apply(lambda x: datetime.fromisoformat(x))
-    print(df.dtypes)
     
     df = df.sort_values('Date')
     df = df.reset_index(drop=True)
     
     column_list = list(df.columns)
     column_list.remove('Date')
-
-    label = tk.Label(text="")
-    label.pack()
     
     fig = Figure()
-    
+    frame_plot=tk.Frame(app)
     subplot_1 = fig.add_subplot(1,1,1)
-    canvas = FigureCanvasTkAgg(fig, master=app)  # A tk.DrawingArea.
-    canvas.get_tk_widget().pack(fill="both", expand=1)
+    canvas = FigureCanvasTkAgg(fig, master=frame_plot)  # A tk.DrawingArea.
+    canvas.get_tk_widget().pack(fill="both", expand=True)
+    frame_plot.pack(fill='both',side='left',expand=True)
     #on crée une Frame qui va contenir les bouttons
     
     def update_plot():
         global GLOBAL_COUNTER
-        print(fig.get_axes())
         fig.delaxes(fig.get_axes()[0])
-        print(fig.get_axes())
         subplot_1 = fig.add_subplot(1,1,1)
         date_list = df['Date'][:GLOBAL_COUNTER].to_list()
 
@@ -112,7 +107,6 @@ def lauch():
 
     def refresh():
         global GLOBAL_COUNTER
-        print("refresh")
         app.after(500, refresh)
         update_plot()
         GLOBAL_COUNTER+=1
@@ -130,17 +124,17 @@ def lauch():
     button_lib = tk.Button(frame_button,text="Libra",command=partial(choose_money,"LIB"))
     
     #on place chaque boutton dans l'appli avec comme paramètre side=left pour qu'il soit tous au milieu de l'appli
-    button_btc.pack(fill='x',expand=True,side="left")
-    button_eth.pack(fill='x',expand=True,side="left")
-    button_ltc.pack(fill='x',expand=True,side="left")
-    button_mon.pack(fill='x',expand=True,side="left")
-    button_rip.pack(fill='x',expand=True,side="left")
-    button_car.pack(fill='x',expand=True,side="left")
-    button_das.pack(fill='x',expand=True,side="left")
-    button_lib.pack(fill='x',expand=True,side="left")
+    button_btc.pack(fill='both',expand=True,side="top")
+    button_eth.pack(fill='both',expand=True,side="top")
+    button_ltc.pack(fill='both',expand=True,side="top")
+    button_mon.pack(fill='both',expand=True,side="top")
+    button_rip.pack(fill='both',expand=True,side="top")
+    button_car.pack(fill='both',expand=True,side="top")
+    button_das.pack(fill='both',expand=True,side="top")
+    button_lib.pack(fill='both',expand=True,side="top")
     
     #on place la frame dans l'appli en haut de celle ci
-    frame_button.pack(fill='x',side="top")
+    frame_button.pack(fill='y',side="right")
     refresh()
     app.mainloop()
     
