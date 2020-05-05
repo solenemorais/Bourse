@@ -9,10 +9,18 @@ Created on Wed Apr 29 17:27:00 2020
 #Import
 import tkinter as tk
 from functools import partial
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+from datetime import datetime
 
 #Variables
 app = tk.Tk()
-app.title('My App')
+app.title('VisioCrypto')
+
+global GLOBAL_COUNTER
+GLOBAL_COUNTER = 1
+
 
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 
@@ -41,7 +49,7 @@ def get_DAS():#Dash
     
 def get_LIB():#Libra
     print("LIB")
-
+    
 def choose_money(money):
     if money=="BTC":
         get_BTC()
@@ -61,7 +69,53 @@ def choose_money(money):
         get_LIB()
 
 def lauch():
+    #---- READ THE CSV ----
+    PATH_FILE_NAME = "scrape_data.csv"
+    
+    df = pd.read_csv(PATH_FILE_NAME, sep=";")
+    print(df.dtypes)
+    
+    df["Date"] = df["Date"].astype(str)
+    df["Date"] = df["Date"].apply(lambda x: datetime.fromisoformat(x))
+    print(df.dtypes)
+    
+    df = df.sort_values('Date')
+    df = df.reset_index(drop=True)
+    
+    column_list = list(df.columns)
+    column_list.remove('Date')
+
+    label = tk.Label(text="")
+    label.pack()
+    
+    fig = Figure()
+    
+    subplot_1 = fig.add_subplot(1,1,1)
+    canvas = FigureCanvasTkAgg(fig, master=app)  # A tk.DrawingArea.
+    canvas.get_tk_widget().pack(fill="both", expand=1)
     #on crée une Frame qui va contenir les bouttons
+    
+    def update_plot():
+        global GLOBAL_COUNTER
+        print(fig.get_axes())
+        fig.delaxes(fig.get_axes()[0])
+        print(fig.get_axes())
+        subplot_1 = fig.add_subplot(1,1,1)
+        date_list = df['Date'][:GLOBAL_COUNTER].to_list()
+
+        for column in column_list:
+            value_list = df[column][:GLOBAL_COUNTER].to_list()
+            line = subplot_1.plot_date([date_list],[value_list])
+        canvas.draw()
+
+
+    def refresh():
+        global GLOBAL_COUNTER
+        print("refresh")
+        app.after(500, refresh)
+        update_plot()
+        GLOBAL_COUNTER+=1
+    
     frame_button=tk.Frame(app)
     
     #On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
@@ -86,8 +140,10 @@ def lauch():
     
     #on place la frame dans l'appli en haut de celle ci
     frame_button.pack(fill='x',side="top")
+    refresh()
     app.mainloop()
     
+
 
 lauch()
 
