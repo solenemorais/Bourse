@@ -11,7 +11,7 @@ import tkinter as tk
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from threading import Thread
 import pandas as pd
 from datetime import datetime
 
@@ -54,17 +54,14 @@ PAUSE=10
 df=pd.DataFrame({'Value':[],'Date':[]})
 
 #Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
-def scrap(name,url):
-    get_data_csv(name)
-    driver=webdriver.Firefox()
-    driver.get(url)
-    while(True):
+def scrap(name,driver,*args):
+    while True :
         price=driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
+        print(price.text)
         df.loc[df.shape[0]]=[float(price.text[:-4]),datetime.now()]
-        update_plot()
-        filling_csv(name,df)
+        #filling_csv(name,df)
         time.sleep(PAUSE)
-
+    
 def get_data_csv(name):
     filename=str(name+'.csv')
     file_exists = os.path.isfile(filename)
@@ -88,28 +85,111 @@ def filling_csv (name,df):
             writer.writeheader()
             for row in df.itertuples() :
                 writer.writerow({"Value" : row.data, "Date" : row.time})
+           
+def update_plot():
+    global GLOBAL_COUNTER
+    fig.delaxes(fig.get_axes()[0])
+    subplot_1 = fig.add_subplot(1,1,1)
+    subplot_1.plot(df.Date,df.Value)
+    fig.autofmt_xdate(rotation= 45)
+    canvas.draw()
+
+
+def refresh():
+    global GLOBAL_COUNTER
+    app.after(500, refresh)
+    update_plot()
+    GLOBAL_COUNTER+=1
+            
+            
             
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 #Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
 
     
 def choose_money(money):
+    driver=webdriver.Firefox()
+    
     if money=="BTC":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:BTC-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:BTC-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
+        
     elif money=="ETH":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="LTC":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:LTC-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:LTC-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="MON":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:MLN-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:MLN-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="EOS":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:EOS-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:EOS-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="CAR":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ATOM-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:ATOM-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="WAVE":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:WAVES-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:WAVES-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
+        
     elif money=="DASH":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:DASH-EUR')
+        driver.get('https://trade.kraken.com/fr-fr/charts/KRAKEN:DASH-EUR')
+        get_data_csv(money)
+        
+        thread_2 = Thread(target=refresh(), args=(1,))
+        thread_1 = Thread(target=partial(scrap,money,driver), args=(1,))
+        thread_1.start()
+        time.sleep(5)
+        thread_2.start()
 
 
 #---- READ THE CSV ----
@@ -117,7 +197,7 @@ def choose_money(money):
 PATH_FILE_NAME = "scrape_data.csv"
 
 df = pd.read_csv(PATH_FILE_NAME, sep=";")
-"""
+
 df["Date"] = df["Date"].astype(str)
 df["Date"] = df["Date"].apply(lambda x: datetime.fromisoformat(x))
 
@@ -126,35 +206,15 @@ df = df.reset_index(drop=True)
 
 column_list = list(df.columns)
 column_list.remove('Date')
-
+"""
 fig = Figure()
 frame_plot=tk.Frame(app)
 subplot_1 = fig.add_subplot(1,1,1)
 canvas = FigureCanvasTkAgg(fig, master=frame_plot)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 frame_plot.pack(fill='both',side='left',expand=True)
+
 #on crée une Frame qui va contenir les bouttons
-
-def update_plot():
-    global GLOBAL_COUNTER
-    fig.delaxes(fig.get_axes()[0])
-    subplot_1 = fig.add_subplot(1,1,1)
-    date_list = df['Date'][:GLOBAL_COUNTER].to_list()
-
-    for column in column_list:
-        value_list = df[column][:GLOBAL_COUNTER].to_list()
-        line = subplot_1.plot_date([date_list],[value_list])
-    canvas.draw()
-    GLOBAL_COUNTER+=1
-
-"""
-def refresh():
-    global GLOBAL_COUNTER
-    app.after(500, refresh)
-    update_plot()
-    GLOBAL_COUNTER+=1
-"""
-
 frame_button=tk.Frame(app)
 
 #On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
@@ -180,6 +240,7 @@ button_lib.pack(fill='both',expand=True,side="top")
 #on place la frame dans l'appli en haut de celle ci
 frame_button.pack(fill='y',side="right")
 app.mainloop()
+
     
 
 
