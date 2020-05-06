@@ -26,49 +26,89 @@ GLOBAL_COUNTER = 1
 
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 
+#IMPORT
+import time
+from selenium import webdriver
+
+#bibliothèques pour fichiers
+import csv
+import os.path
+
+#bibliothèque pour tracer le graphique dans la console
+import tkinter as tk
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+from numpy import array
+
+#autres bibliothèques utiles
+import pandas as pd
+import time
+from datetime import datetime
+import tkinter as tk
+
+#CONSTANTE
+PAUSE=10
+
+#VARIABLE
+dataFrame=pd.DataFrame({'data':[],'time':[]})
+
 #Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
+def scrap(name,url):
+    get_data_csv(name)
+    driver=webdriver.Firefox()
+    driver.get(url)
+    while(True):
+        price=driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
+        dataFrame.loc[dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
+        filling_csv(name,dataFrame)
+        time.sleep(PAUSE)
 
-def get_BTC():#BITCOIN
-    print("BTC")
+def get_data_csv(name):
+    filename=str(name+'.csv')
+    file_exists = os.path.isfile(filename)
+    if file_exists :
+        dataFrame=pd.read_csv('scrape_data.csv',sep="/")
 
-def get_ETH():#Ethereum
-    print("ETH")
-    
-def get_LTC():#Litecoin
-    print("LTC")
+def filling_csv (name,df):
+    filename=str(name+'.csv')
+    file_exists = os.path.isfile(filename)
+    if file_exists :
+        with open(filename, 'a+', newline="") as csv_file:
+            fieldnames = ["Valeur", "Date"]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
+            for row in df.itertuples() :
+                writer.writerow({"Valeur" : row.data, "Date" : row.time})
+    else:
+        #---- CREATE A NEW CSV ----
+        with open(filename, 'w', newline="") as csv_file:
+            fieldnames = ["Valeur", "Date"]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
+            writer.writeheader()
+            for row in df.itertuples() :
+                writer.writerow({"Valeur" : row.data, "Date" : row.time})
+            
+#ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
+#Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
 
-def get_MON():#Monero
-    print("MON")
-
-def get_RIP():#Ripple
-    print("RIP")
-
-def get_CAR():#Cardano
-    print("CAR")
-    
-def get_DAS():#Dash
-    print("DAS")
-    
-def get_LIB():#Libra
-    print("LIB")
     
 def choose_money(money):
     if money=="BTC":
-        get_BTC()
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:BTC-EUR')
     elif money=="ETH":
-        get_ETH()
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
     elif money=="LTC":
-        get_LTC()
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:LTC-EUR')
     elif money=="MON":
-        get_MON()
-    elif money=="RIP":
-        get_RIP()
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:MLN-EUR')
+    elif money=="EOS":
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:EOS-EUR')
     elif money=="CAR":
-        get_CAR()
-    elif money=="DAS":
-        get_DAS()
-    elif money=="LIB":
-        get_LIB()
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ATOM-EUR')
+    elif money=="WAVE":
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:WAVES-EUR')
+    elif money=="DASH":
+        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:DASH-EUR')
 
 def lauch():
     #---- READ THE CSV ----
@@ -141,5 +181,4 @@ def lauch():
 
 
 lauch()
-
 
