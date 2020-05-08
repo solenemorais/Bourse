@@ -5,26 +5,25 @@ Created on Wed Apr 29 17:27:00 2020
 @author: Aurélien
 """
 
-#Ce fichier sera le main du coup faudra pas changer le nom dans le différentes branche pour qu'on puisse les fusionner après
-#Import
+#IMPORT
+
 import tkinter as tk
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import Scrapper
-import pandas as pd
 
-global_counter = 1
-#Variables
+#VARIABLES
+
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
+global_counter = 1
 
-scrap_BTC=Scrapper("BTC")
 
 #FONCTION
 
-          
+
 def update_plot():
     global global_counter
     global df
@@ -42,72 +41,49 @@ def refresh():
     app.after(500, refresh)
             
             
+            
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 #Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
-
     
 def choose_money(money):
-
     refresh()
-    scrap_BTC.start_and_stop()
     
     
-
+    
 #---- READ THE CSV ----
-"""
-PATH_FILE_NAME = "scrape_data.csv"
-
-df = pd.read_csv(PATH_FILE_NAME, sep=";")
-"""
-df["Date"] = df["Date"].astype(str)
-df["Date"] = df["Date"].apply(lambda x: datetime.fromisoformat(x))
-
-df = df.sort_values('Date')
-df = df.reset_index(drop=True)
-
-column_list = list(df.columns)
-column_list.remove('Date')
 
 fig = Figure()
 frame_plot=tk.Frame(app)
-subplot_1 = fig.add_subplot(1,1,1)
+subplot_1 = fig.add_subplot(1,1,1) #nrows, ncols, and index in order
 canvas = FigureCanvasTkAgg(fig, master=frame_plot)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 frame_plot.pack(fill='both',side='left',expand=True)
+
+
 #on crée une Frame qui va contenir les bouttons
-
-def update_plot():
-    global GLOBAL_COUNTER
-    fig.delaxes(fig.get_axes()[0])
-    subplot_1 = fig.add_subplot(1,1,1)
-    date_list = df['Date'][:GLOBAL_COUNTER].to_list()
-
-    for column in column_list:
-        value_list = df[column][:GLOBAL_COUNTER].to_list()
-        line = subplot_1.plot_date([date_list],[value_list])
-    canvas.draw()
-    GLOBAL_COUNTER+=1
-
-"""
-def refresh():
-    global GLOBAL_COUNTER
-    app.after(500, refresh)
-    update_plot()
-    GLOBAL_COUNTER+=1
-"""
-
 frame_button=tk.Frame(app)
 
-#On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
-button_btc = tk.Button(frame_button,text="Bitcoin",command=partial(choose_money,"BTC"))
-button_eth = tk.Button(frame_button,text="Ethereum",command=partial(choose_money,"ETH"))
-button_ltc = tk.Button(frame_button,text="Litecoin",command=partial(choose_money,"LTC"))
-button_mon = tk.Button(frame_button,text="Monero",command=partial(choose_money,"MON"))
-button_rip = tk.Button(frame_button,text="Ripple",command=partial(choose_money,"RIP"))
-button_car = tk.Button(frame_button,text="Cardano",command=partial(choose_money,"CAR"))
-button_das = tk.Button(frame_button,text="Dash",command=partial(choose_money,"DAS"))
-button_lib = tk.Button(frame_button,text="Libra",command=partial(choose_money,"LIB"))
+var1=tk.StringVar()
+var2=tk.StringVar()
+var3=tk.StringVar()
+var4=tk.StringVar()
+var5=tk.StringVar()
+var6=tk.StringVar()
+var7=tk.StringVar()
+var8=tk.StringVar()
 
+#On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
+button_btc = tk.Checkbutton(frame_button, text='Bitcoin', variable=var1, onvalue=1, offvalue=0, command=partial(choose_money, "BTC"))
+button_eth = tk.Checkbutton(frame_button, text='Ethereum', variable=var2, onvalue="ETH", offvalue=0)
+button_ltc = tk.Checkbutton(frame_button, text='Litecoin', variable=var3, onvalue="LTC", offvalue=0)
+button_mon = tk.Checkbutton(frame_button, text='Monero', variable=var4, onvalue="MNL", offvalue=0)
+button_rip = tk.Checkbutton(frame_button, text='EOS', variable=var5, onvalue="EOS", offvalue=0)
+button_car = tk.Checkbutton(frame_button, text='ATOM', variable=var6, onvalue="ATOM", offvalue=0)
+button_das = tk.Checkbutton(frame_button, text='Dash', variable=var7, onvalue="Dash", offvalue=0)
+button_lib = tk.Checkbutton(frame_button, text='WAVES', variable=var8, onvalue="Waves", offvalue=0)
+
+button_btc.deselect()
+#button_btc['indicatoron'] = 0 
 #on place chaque boutton dans l'appli avec comme paramètre side=left pour qu'il soit tous au milieu de l'appli
 button_btc.pack(fill='both',expand=True,side="top")
 button_eth.pack(fill='both',expand=True,side="top")
@@ -117,10 +93,12 @@ button_rip.pack(fill='both',expand=True,side="top")
 button_car.pack(fill='both',expand=True,side="top")
 button_das.pack(fill='both',expand=True,side="top")
 button_lib.pack(fill='both',expand=True,side="top")
-
 #on place la frame dans l'appli en haut de celle ci
+
+
 frame_button.pack(fill='y',side="right")
 app.mainloop()
+
     
 
 
