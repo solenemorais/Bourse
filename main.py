@@ -11,106 +11,47 @@ import tkinter as tk
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+import Scrapper
 import pandas as pd
-from datetime import datetime
 
+global_counter = 1
 #Variables
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
 
-global GLOBAL_COUNTER
-GLOBAL_COUNTER = 1
+scrap_BTC=Scrapper("BTC")
+
+#FONCTION
+
+          
+def update_plot():
+    global global_counter
+    global df
+    fig.delaxes(fig.get_axes()[0])
+    subplot_1 = fig.add_subplot(1,1,1)
+    subplot_1.plot(df.Date,df.Value,color='orange')
+    fig.autofmt_xdate(rotation= 45)
+    canvas.draw()
 
 
-#ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
-
-#IMPORT
-import time
-from selenium import webdriver
-
-#bibliothèques pour fichiers
-import csv
-import os.path
-
-#bibliothèque pour tracer le graphique dans la console
-import tkinter as tk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
-from numpy import array
-
-#autres bibliothèques utiles
-import pandas as pd
-import time
-from datetime import datetime
-import tkinter as tk
-
-#CONSTANTE
-PAUSE=10
-
-#VARIABLE
-df=pd.DataFrame({'Value':[],'Date':[]})
-
-#Ici on a les différentes fonctions qui font être exécutées en fonction de la monnaie choisis
-def scrap(name,url):
-    get_data_csv(name)
-    driver=webdriver.Firefox()
-    driver.get(url)
-    while(True):
-        price=driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
-        df.loc[df.shape[0]]=[float(price.text[:-4]),datetime.now()]
-        update_plot()
-        filling_csv(name,df)
-        time.sleep(PAUSE)
-
-def get_data_csv(name):
-    filename=str(name+'.csv')
-    file_exists = os.path.isfile(filename)
-    if file_exists :
-        df=pd.read_csv(filename,sep="/")
-
-def filling_csv (name,df):
-    filename=str(name+'.csv')
-    file_exists = os.path.isfile(filename)
-    if file_exists :
-        with open(filename, 'a+', newline="") as csv_file:
-            fieldnames = ["Value", "Date"]
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
-            for row in df.itertuples() :
-                writer.writerow({"Value" : row.data, "Date" : row.time})
-    else:
-        #---- CREATE A NEW CSV ----
-        with open(filename, 'w', newline="") as csv_file:
-            fieldnames = ["Value", "Date"]
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter="/")
-            writer.writeheader()
-            for row in df.itertuples() :
-                writer.writerow({"Value" : row.data, "Date" : row.time})
+def refresh():
+    global global_counter
+    update_plot()
+    global_counter+=1
+    app.after(500, refresh)
+            
             
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 #Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
 
     
 def choose_money(money):
-    if money=="BTC":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:BTC-EUR')
-    elif money=="ETH":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ETH-EUR')
-    elif money=="LTC":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:LTC-EUR')
-    elif money=="MON":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:MLN-EUR')
-    elif money=="EOS":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:EOS-EUR')
-    elif money=="CAR":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:ATOM-EUR')
-    elif money=="WAVE":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:WAVES-EUR')
-    elif money=="DASH":
-        scrap(money,'https://trade.kraken.com/fr-fr/charts/KRAKEN:DASH-EUR')
 
+    refresh()
+    scrap_BTC.start_and_stop()
+    
+    
 
 #---- READ THE CSV ----
 """
