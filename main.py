@@ -37,7 +37,7 @@ global_counter = 1
 #Fonction qui va scrapper la donnée et la stocker dans la dataFrame et le csv
 def scrap(name,*args):
     global df
-    driver=webdriver.Firefox()
+    driver = webdriver.Chrome() 
     url=str('https://trade.kraken.com/fr-fr/charts/KRAKEN:'+name+'-EUR')
     driver.get(url)
     
@@ -55,7 +55,7 @@ def get_data_csv(name):
     file_exists = os.path.isfile(filename)
     print(df)
     if file_exists :
-        df=pd.read_csv(filename,sep="/").reset_index(drop=True)
+        df=pd.read_csv(filename,sep="/").reset_index(drop=True) 
         print (df)
         df["Date"] = df["Date"].astype(str)
         df["Date"] = df["Date"].apply(lambda x: datetime.fromisoformat(x))
@@ -115,24 +115,36 @@ def choose_money(money):
 
 fig = Figure()
 frame_plot=tk.Frame(app)
-subplot_1 = fig.add_subplot(1,1,1)
+subplot_1 = fig.add_subplot(1,1,1) #nrows, ncols, and index in order
 canvas = FigureCanvasTkAgg(fig, master=frame_plot)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 frame_plot.pack(fill='both',side='left',expand=True)
 
+
 #on crée une Frame qui va contenir les bouttons
 frame_button=tk.Frame(app)
 
-#On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
-button_btc = tk.Button(frame_button,text="Bitcoin",command=partial(choose_money,"BTC"))
-button_eth = tk.Button(frame_button,text="Ethereum",command=partial(choose_money,"ETH"))
-button_ltc = tk.Button(frame_button,text="Litecoin",command=partial(choose_money,"LTC"))
-button_mon = tk.Button(frame_button,text="Monero",command=partial(choose_money,"MLN"))
-button_rip = tk.Button(frame_button,text="EOS",command=partial(choose_money,"EOS"))
-button_car = tk.Button(frame_button,text="ATOM",command=partial(choose_money,"ATOM"))
-button_das = tk.Button(frame_button,text="Dash",command=partial(choose_money,"DASH"))
-button_lib = tk.Button(frame_button,text="WAVES",command=partial(choose_money,"WAVES"))
+var1=tk.StringVar()
+var2=tk.StringVar()
+var3=tk.StringVar()
+var4=tk.StringVar()
+var5=tk.StringVar()
+var6=tk.StringVar()
+var7=tk.StringVar()
+var8=tk.StringVar()
 
+#On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
+button_btc = tk.Checkbutton(frame_button, text='Bitcoin', variable=var1, onvalue=1, offvalue=0, command=partial(choose_money, "BTC"))
+button_eth = tk.Checkbutton(frame_button, text='Ethereum', variable=var2, onvalue="ETH", offvalue=0)
+button_ltc = tk.Checkbutton(frame_button, text='Litecoin', variable=var3, onvalue="LTC", offvalue=0)
+button_mon = tk.Checkbutton(frame_button, text='Monero', variable=var4, onvalue="MNL", offvalue=0)
+button_rip = tk.Checkbutton(frame_button, text='EOS', variable=var5, onvalue="EOS", offvalue=0)
+button_car = tk.Checkbutton(frame_button, text='ATOM', variable=var6, onvalue="ATOM", offvalue=0)
+button_das = tk.Checkbutton(frame_button, text='Dash', variable=var7, onvalue="Dash", offvalue=0)
+button_lib = tk.Checkbutton(frame_button, text='WAVES', variable=var8, onvalue="Waves", offvalue=0)
+
+button_btc.deselect()
+#button_btc['indicatoron'] = 0 
 #on place chaque boutton dans l'appli avec comme paramètre side=left pour qu'il soit tous au milieu de l'appli
 button_btc.pack(fill='both',expand=True,side="top")
 button_eth.pack(fill='both',expand=True,side="top")
@@ -142,8 +154,9 @@ button_rip.pack(fill='both',expand=True,side="top")
 button_car.pack(fill='both',expand=True,side="top")
 button_das.pack(fill='both',expand=True,side="top")
 button_lib.pack(fill='both',expand=True,side="top")
-
 #on place la frame dans l'appli en haut de celle ci
+
+
 frame_button.pack(fill='y',side="right")
 app.mainloop()
 
