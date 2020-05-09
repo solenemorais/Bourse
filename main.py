@@ -12,13 +12,23 @@ from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import Scrapper
+from threading import Thread
+import pandas as pd
 
+
+#CONSTANTS
+
+MONEY=['BTC','ETH','LTC','MLN','EOS','ATOM','Dash','Waves']
+MONEY_SCRAPPERS=dict()
+for element in MONEY :
+    MONEY_SCRAPPERS[element]=Scrapper.Scrapper(element)
 #VARIABLES
 
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
 global_counter = 1
+df_to_plot=pd.DataFrame({'Value':[],'Date':[]})
 
 
 #FONCTION
@@ -26,10 +36,10 @@ global_counter = 1
 
 def update_plot():
     global global_counter
-    global df
+    global df_to_plot
     fig.delaxes(fig.get_axes()[0])
     subplot_1 = fig.add_subplot(1,1,1)
-    subplot_1.plot(df.Date,df.Value,color='orange')
+    subplot_1.plot(df_to_plot.Date,df_to_plot.Value,color='orange')
     fig.autofmt_xdate(rotation= 45)
     canvas.draw()
 
@@ -45,11 +55,12 @@ def refresh():
 #ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
 #Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
     
+ 
 def choose_money(money):
+    global df_to_plot
+    Thread(target=MONEY_SCRAPPERS[money].start_and_stop, args=(1,)).start()
+    df_to_plot=MONEY_SCRAPPERS[money].dataFrame
     refresh()
-    
-    
-    
 #---- READ THE CSV ----
 
 fig = Figure()
@@ -71,18 +82,25 @@ var5=tk.StringVar()
 var6=tk.StringVar()
 var7=tk.StringVar()
 var8=tk.StringVar()
-
 #On défnit chaque boutton pour chaque monnaie avec comme paramètre le nom de la monnaie 
-button_btc = tk.Checkbutton(frame_button, text='Bitcoin', variable=var1, onvalue=1, offvalue=0, command=partial(choose_money, "BTC"))
-button_eth = tk.Checkbutton(frame_button, text='Ethereum', variable=var2, onvalue="ETH", offvalue=0)
-button_ltc = tk.Checkbutton(frame_button, text='Litecoin', variable=var3, onvalue="LTC", offvalue=0)
-button_mon = tk.Checkbutton(frame_button, text='Monero', variable=var4, onvalue="MNL", offvalue=0)
-button_rip = tk.Checkbutton(frame_button, text='EOS', variable=var5, onvalue="EOS", offvalue=0)
-button_car = tk.Checkbutton(frame_button, text='ATOM', variable=var6, onvalue="ATOM", offvalue=0)
-button_das = tk.Checkbutton(frame_button, text='Dash', variable=var7, onvalue="Dash", offvalue=0)
-button_lib = tk.Checkbutton(frame_button, text='WAVES', variable=var8, onvalue="Waves", offvalue=0)
+button_btc = tk.Checkbutton(frame_button, text='Bitcoin', variable=var1, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[0]))
+button_eth = tk.Checkbutton(frame_button, text='Ethereum', variable=var2, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[1]))
+button_ltc = tk.Checkbutton(frame_button, text='Litecoin', variable=var3, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[2]))
+button_mon = tk.Checkbutton(frame_button, text='Monero', variable=var4, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[3]))
+button_rip = tk.Checkbutton(frame_button, text='EOS', variable=var5, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[4]))
+button_car = tk.Checkbutton(frame_button, text='ATOM', variable=var6, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[5]))
+button_das = tk.Checkbutton(frame_button, text='Dash', variable=var7, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[6]))
+button_lib = tk.Checkbutton(frame_button, text='WAVES', variable=var8, onvalue=1, offvalue=0, command=partial(choose_money, MONEY[7]))
 
 button_btc.deselect()
+button_eth.deselect()
+button_ltc.deselect()
+button_mon.deselect()
+button_rip.deselect()
+button_car.deselect()
+button_das.deselect()
+button_lib.deselect()
+
 #button_btc['indicatoron'] = 0 
 #on place chaque boutton dans l'appli avec comme paramètre side=left pour qu'il soit tous au milieu de l'appli
 button_btc.pack(fill='both',expand=True,side="top")
@@ -97,8 +115,12 @@ button_lib.pack(fill='both',expand=True,side="top")
 
 
 frame_button.pack(fill='y',side="right")
+
 app.mainloop()
 
-    
+for scrapper in MONEY:
+    MONEY_SCRAPPERS[scrapper].destroy_thread()
+    MONEY_SCRAPPERS[scrapper].filling_csv()
+
 
 
