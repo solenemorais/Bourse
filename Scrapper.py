@@ -88,5 +88,3 @@ class Scrapper :
             writer.writeheader()
             for row in self.dataFrame.itertuples() :
                 writer.writerow({"Value" : row.Value, "Date" : row.Date})
-
-        
