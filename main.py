@@ -16,18 +16,20 @@ import Scrapper
 from threading import Thread
 import pandas as pd
 from functools import partial
+import time
 
 #CONSTANTS
 
-MONEY=['BTC','ETH','LTC','MLN','EOS','ATOM','Dash','Waves']
+MONEY=['BTC','ETH','LTC','MLN']
 MONEY_SCRAPPERS=dict()
-"""
-for element in MONEY :
-    MONEY_SCRAPPERS[element]=Scrapper.Scrapper(element)
-"""
 
-MONEY_SCRAPPERS["BTC"]=Scrapper.Scrapper("BTC")
-MONEY_SCRAPPERS["ETH"]=Scrapper.Scrapper("ETH")
+def init_scrappers (element,*args):
+    MONEY_SCRAPPERS[element]=Scrapper.Scrapper(element)
+    
+for element in MONEY :
+    Thread(target=partial(init_scrappers,element), args=(1,)).start()
+    time.sleep(3)
+  
 #VARIABLES
 global list_test
 list_test=[]
@@ -100,8 +102,8 @@ def mget():
 fig = Figure()
 frame_plot=tk.Frame(app)
 
-for i in range(1,5):
-    list_plot.append(fig.add_subplot(2,2,i))
+for i in range(1,3):
+    list_plot.append(fig.add_subplot(1,2,i))
     
 """  
 subplot_1 = fig.add_subplot(2,2,1) #nrows, ncols, and index in order
@@ -159,7 +161,7 @@ app.mainloop()
 
 for scrapper in MONEY:
     MONEY_SCRAPPERS[scrapper].destroy_thread()
-    MONEY_SCRAPPERS[scrapper].filling_csv()
+    #MONEY_SCRAPPERS[scrapper].filling_csv()
 
 
 
