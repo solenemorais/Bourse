@@ -38,23 +38,25 @@ app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
 global_counter = 1
 df_to_plot=pd.DataFrame({'Value':[],'Date':[]})
-
+list_plot=[]
 
 #FONCTION
 
 
 def update_plot():
     global global_counter
-    global df_to_plot
+    global list_plot
     global list_test
     global list_data_plot
+    global subplot
     
-    for index in range(len(fig.get_axes())-1):
-        fig.delaxes(fig.get_axes()[index])
-    
-    for i,data in enumerate(list_data_plot):
-        subplot = fig.add_subplot(2,2,i+1)
-        subplot.plot(data.Date,data.Value,color='orange')
+    for i,element in enumerate(list_test):
+        try :
+            list_plot[i].lines.pop(0)
+        except :
+            print("aucune ligne")
+            
+        list_plot[i].plot(list_data_plot[i].Date,list_data_plot[i].Value,color='orange')
         fig.autofmt_xdate(rotation= 45)
         canvas.draw()
     
@@ -97,7 +99,9 @@ def mget():
 
 fig = Figure()
 frame_plot=tk.Frame(app)
-subplot = fig.add_subplot(1,1,1)
+
+for i in range(1,5):
+    list_plot.append(fig.add_subplot(2,2,i))
     
 """  
 subplot_1 = fig.add_subplot(2,2,1) #nrows, ncols, and index in order

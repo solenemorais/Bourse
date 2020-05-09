@@ -51,8 +51,6 @@ class Scrapper :
         self.thread_flag=False
         self.driver.close()
         
-    def close_tab(self):
-        self.driver.close()
     
     def init_selenium(self,*args):
         self.url=str('https://trade.kraken.com/fr-fr/charts/KRAKEN:'+self.name+'-EUR')
