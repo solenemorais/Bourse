@@ -14,16 +14,21 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import Scrapper
 from threading import Thread
 import pandas as pd
-
+import time
 
 #CONSTANTS
 
 MONEY=['BTC','ETH','LTC','MLN','EOS','ATOM','Dash','Waves']
 MONEY_SCRAPPERS=dict()
-for element in MONEY :
-    MONEY_SCRAPPERS[element]=Scrapper.Scrapper(element)
-#VARIABLES
 
+def init_scrappers(element,*args):
+    MONEY_SCRAPPERS[element]=Scrapper.Scrapper(element)
+    
+for element in MONEY :
+    Thread(target=partial(init_scrappers,element), args=(1,)).start()   
+    time.sleep(1)
+
+#VARIABLES
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
@@ -32,17 +37,21 @@ df_to_plot=pd.DataFrame({'Value':[],'Date':[]})
 
 
 #FONCTION
-
-
+     
 def update_plot():
     global global_counter
     global df_to_plot
     fig.delaxes(fig.get_axes()[0])
     subplot_1 = fig.add_subplot(1,1,1)
-    subplot_1.plot(df_to_plot.Date,df_to_plot.Value,color='orange')
-    fig.autofmt_xdate(rotation= 45)
-    canvas.draw()
-
+    if df_to_plot.shape[0] > 3:
+        subplot_1.plot(df_to_plot['Date'][:-1],df_to_plot['Value'][:-1],":o",color="orange")
+        subplot_1.plot(df_to_plot['Date'][-2:],df_to_plot['Value'][-2:],"--",color="purple")
+        fig.autofmt_xdate(rotation= 45)
+        canvas.draw()
+    else:
+        subplot_1.plot(df_to_plot['Date'],df_to_plot['Value'],":o",color="orange")
+        fig.autofmt_xdate(rotation= 45)
+        canvas.draw()
 
 def refresh():
     global global_counter
@@ -119,8 +128,8 @@ frame_button.pack(fill='y',side="right")
 app.mainloop()
 
 for scrapper in MONEY:
-    MONEY_SCRAPPERS[scrapper].destroy_thread()
-    MONEY_SCRAPPERS[scrapper].filling_csv()
+    Thread(target=MONEY_SCRAPPERS[scrapper].destroy(), args=(1,)).start()
+    
 
 
 
