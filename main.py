@@ -49,9 +49,11 @@ def update_plot():
     global list_test
     global list_data_plot
     
-    fig.delaxes(fig.get_axes()[0])#delete axes from figure
-    for data, i in enumerate(list_data_plot):
-        subplot = fig.add_subplot(2,2,i)
+    for index in range(len(fig.get_axes())-1):
+        fig.delaxes(fig.get_axes()[index])
+    
+    for i,data in enumerate(list_data_plot):
+        subplot = fig.add_subplot(2,2,i+1)
         subplot.plot(data.Date,data.Value,color='orange')
         fig.autofmt_xdate(rotation= 45)
         canvas.draw()
@@ -75,8 +77,8 @@ def choose_money():
     global list_test
     for money in list_test:
         print(money)
-        #Thread(target=MONEY_SCRAPPERS[money].start_and_stop, args=(1,)).start()
-        #list_data_plot.append(MONEY_SCRAPPERS[money].dataFrame)
+        Thread(target=MONEY_SCRAPPERS[money].start_and_stop, args=(1,)).start()
+        list_data_plot.append(MONEY_SCRAPPERS[money].dataFrame)
     refresh()
 
 global list_data_plot
