@@ -23,15 +23,16 @@ class Scrapper :
             self.driver=webdriver.Firefox('./geckodriver')
         except:
             try :
-               self.driver=webdriver.Chrome('./chromedriver80') 
+               self.driver=webdriver.Chrome(executable_path=r'./chromedriver80/chromedriver.exe') 
             except :
                 try :
-                   self.driver=webdriver.Chrome('./chromedriver81') 
+                   self.driver=webdriver.Chrome(executable_path=r'./chromedriver81/chromedriver.exe') 
                 except :
                     try :
-                       self.driver=webdriver.Chrome('./chromedriver83') 
+                       self.driver=webdriver.Chrome(executable_path=r'./chromedriver83/chromedriver.exe') 
                     except :
                         print('No Driver Available')
+                        
         self.started=False
         self.name=name
         self.thread_flag=False
