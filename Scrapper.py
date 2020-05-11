@@ -37,11 +37,16 @@ class Scrapper :
         self.started=False
         self.name=name
         self.thread_flag=False
+        self.thread_flag_invest=False
+        self.invest=0
+        self.compte=0
+        self.first_invest=0
         self.filename=str(self.name+'.csv')
         self.file_exists = os.path.isfile(self.filename)
         thread_selenium = Thread(target=partial(self.init_selenium,Scrapper), args=(1,))
         thread_selenium.start()
-        
+        self.dataFrame=pd.DataFrame({'Value':[],'Date':[]})
+        """
         if self.file_exists :
             
             self.dataFrame=pd.read_csv(self.filename,sep="/").reset_index(drop=True)
@@ -51,19 +56,19 @@ class Scrapper :
         else :
             
             self.dataFrame=pd.DataFrame({'Value':[],'Date':[]})
-            
-            
+        """           
                               
     def destroy(self,*args):
         
         self.thread_flag=False
+        self.thread_flag_invest=False
         self.driver.close()
         self.filling_csv()
         
         
     def close_tab(self):
         
-        self.driver.close()
+        self.driver.quit()
         
     
     def init_selenium(self,*args):
@@ -72,19 +77,42 @@ class Scrapper :
         self.driver.get(self.url)
         
     
-    def start_and_stop(self,*args):
+    def start_and_stop_scrap(self,*args):
         
         if self.thread_flag==False:
             self.thread_flag=True
-            thread_scrap = Thread(target=self.get_data(), args=(1,))
+            thread_scrap = Thread(target=self.get_data, args=(1,))
             thread_scrap.start()
             
         else :
             self.thread_flag=False
+            
+    def start_and_stop_invest(self,my_money,my_invest,flag,*args):
+        self.first_invest= my_invest
+        self.invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        print(self.dataFrame['Value'][self.dataFrame.shape[0]-1])
+        self.compte=my_money
+        thread_invest = Thread(target=partial(self.invest_my_money,my_money,my_invest), args=(1,))
+        thread_invest.start()
+    
+    def invest_my_money(self,*args):
         
+        value_max=0
+        value_min=0
+        invest_init=0
+        invest_on_compte=0
+        
+        while self.thread_flag_invest==True :
+            print(self.invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1])
+            """
+            if self.dataFrame['Value'][self.dataFrame.shape[0]-1]>self.dataFrame['Value'][self.dataFrame.shape[0]-2] :
+                if self.dataFrame['Value'][self.dataFrame.shape[0]-1]>value_max : 
+                    value_max=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            """
+            time.sleep(Scrapper.PAUSE)
     
     #Fonction qui va scrapper la donnée 
-    def get_data(self):
+    def get_data(self,*args):
         
         while self.thread_flag==True :
         
@@ -94,15 +122,14 @@ class Scrapper :
             if self.dataFrame.shape[0] > 3:
                 self.dataFrame.loc[self.dataFrame.shape[0]-1]=[float(price.text[:-4]),datetime.now()]
                 time_n1= datetime.now() + timedelta(0, 10, 0)
-                mean_n3=mean(self.dataFrame['Value'][-3:].to_list())
-                self.dataFrame.loc[self.dataFrame.shape[0]]=[float(mean_n3),time_n1]
+                predict=mean(self.dataFrame['Value'][-2:].to_list())
+                self.dataFrame.loc[self.dataFrame.shape[0]]=[float(predict),time_n1]
                 
             elif self.dataFrame.shape[0] == 2 :
                 self.dataFrame.loc[self.dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
                 time_n1= datetime.now() + timedelta(0, 10, 0)
-                print(time_n1)
-                mean_n3=mean(self.dataFrame['Value'][-3:].to_list())
-                self.dataFrame.loc[self.dataFrame.shape[0]]=[float(mean_n3),time_n1]
+                predict=mean(self.dataFrame['Value'][-2:].to_list())   
+                self.dataFrame.loc[self.dataFrame.shape[0]]=[float(predict),time_n1]
                 
             else:
                 self.dataFrame.loc[self.dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
