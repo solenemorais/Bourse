@@ -49,7 +49,7 @@ class Scrapper :
                               
     def destroy_thread(self,*args):
         self.thread_flag=False
-        self.driver.close()
+        self.driver.quit()
         
     
     def init_selenium(self,*args):
@@ -70,7 +70,6 @@ class Scrapper :
         while self.thread_flag==True :
             time_start=time.process_time()
             price=self.driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
-            print(price)
             self.dataFrame.loc[self.dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
             time_stop=time.process_time()
             time.sleep(Scrapper.PAUSE-(time_stop-time_start))
