@@ -49,10 +49,8 @@ class Scrapper :
                               
     def destroy_thread(self,*args):
         self.thread_flag=False
-        self.driver.close()
+        self.driver.quit()
         
-    def close_tab(self):
-        self.driver.close()
     
     def init_selenium(self,*args):
         self.url=str('https://trade.kraken.com/fr-fr/charts/KRAKEN:'+self.name+'-EUR')
@@ -72,7 +70,6 @@ class Scrapper :
         while self.thread_flag==True :
             time_start=time.process_time()
             price=self.driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
-            print(price)
             self.dataFrame.loc[self.dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
             time_stop=time.process_time()
             time.sleep(Scrapper.PAUSE-(time_stop-time_start))
@@ -88,5 +85,3 @@ class Scrapper :
             writer.writeheader()
             for row in self.dataFrame.itertuples() :
                 writer.writerow({"Value" : row.Value, "Date" : row.Date})
-
-        
