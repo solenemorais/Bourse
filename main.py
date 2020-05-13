@@ -31,7 +31,7 @@ def init_scrappers (element,*args):
     
 for element in MONEY :
     Thread(target=partial(init_scrappers,element), args=(1,)).start()
-    time.sleep(4)
+    time.sleep(5)
 
 #VARIABLES
 global MODE
@@ -141,7 +141,9 @@ def get_checked_button():
     
     for ax in fig_compare_plot.get_axes():
         fig_compare_plot.delaxes(ax)
-        
+    fig_compare_plot.text(0.5, 0.04, 'Time', ha='center')
+    fig_compare_plot.suptitle('Pricing trends of money')
+    
     subplot_to_display=[]
     button_check_index=[]
     
@@ -153,10 +155,21 @@ def get_checked_button():
     
     if (len(button_check_index)==2):
         for i in range(1,3):
-            subplot_to_display.append(fig_compare_plot.add_subplot(1,2,i))
+            ax = fig_compare_plot.add_subplot(1,2,i)
+            ax.set_title(MONEY[button_check_index[i-1]])
+            ax.set_ylabel('Value (EUR)')
+            fig_compare_plot.suptitle('Pricing trends of money')
+            subplot_to_display.append(ax)
+            print(subplot_to_display)
+            ax.label_outer()    
+            
+            
         
     elif (len(button_check_index)==1):
-        subplot_to_display.append(fig_compare_plot.add_subplot(1,1,1))
+        ax = fig_compare_plot.add_subplot(1,1,1)
+        ax.set_title(MONEY[button_check_index[0]])
+        ax.set_ylabel('Value (EUR)')
+        subplot_to_display.append(ax)
 
     start_stop_scrap_multiplot()
 
@@ -290,10 +303,10 @@ def set_mode(mode_choosen):
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
-app.geometry("1414x800")
+app.geometry("1414x700")
     
-compare_plot=tk.Frame(app,width=1414, height=800) 
-invest_Frame=tk.Frame(app,width=1414, height=800)
+compare_plot=tk.Frame(app) 
+invest_Frame=tk.Frame(app)
 
 #======================HOME INTERFACE==================================================
 frame_Home=tk.Frame(app)
