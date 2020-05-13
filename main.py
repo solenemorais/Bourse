@@ -7,11 +7,13 @@ Created on Wed Apr 29 17:27:00 2020
 
 #IMPORT
 
-
+import matplotlib
+matplotlib.use("TkAgg")
 import tkinter as tk
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 import Scrapper
 from threading import Thread
 import pandas as pd
@@ -216,19 +218,14 @@ def invest (flag,*args):
             
         if flag==False:
             MONEY_SCRAPPERS[invest_money].thread_flag_invest=flag
-            
-            if MONEY_SCRAPPERS[invest_money].invest != 0 :
-                compte=MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
-                MONEY_SCRAPPERS[invest_money].compte=compte
-            elif MONEY_SCRAPPERS[invest_money].invest == 0:
-                compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].compte
-                MONEY_SCRAPPERS[invest_money].compte=compte
+                
+            compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
+            MONEY_SCRAPPERS[invest_money].compte=compte
             
             investement=0 
             MONEY_SCRAPPERS[invest_money].invest=0
             
             stock=0
-            MONEY_SCRAPPERS[invest_money].stock_invest=0 
             
     else :
         tk.messagebox.showinfo("Attention", "Vous devez choisir une monnaie")
@@ -293,6 +290,7 @@ def set_mode(mode_choosen):
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
+app.geometry("1414x800")
     
 compare_plot=tk.Frame(app,width=1414, height=800) 
 invest_Frame=tk.Frame(app,width=1414, height=800)
@@ -328,6 +326,10 @@ fig_compare_plot = Figure()
 canvas = FigureCanvasTkAgg(fig_compare_plot, master=graphic)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 graphic.pack(fill='both',side='left',expand=True)
+
+toolbar = NavigationToolbar2Tk(canvas, graphic)
+toolbar.update()
+canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 invest_plot=tk.Frame(invest_Frame)
 graphic_invest=tk.Frame(invest_plot)
