@@ -33,7 +33,7 @@ for element in MONEY :
 
 #VARIABLES
 global MODE
-MODE=1
+MODE=2
 
     #BACK
 compte=1000 #our money
@@ -150,10 +150,28 @@ def get_checked_button():
     
     if (len(button_check_index)==2):
         for i in range(1,3):
-            subplot_to_display.append(fig_compare_plot.add_subplot(1,2,i))
+            ax = fig_compare_plot.add_subplot(1,2,i)
+            #ax.set_xlabel('Time')
+            ax.set_ylabel('Value (EUR)')
+            fig_compare_plot.text(0.5, 0.04, 'Time', ha='center')
+            #fig_compare_plot.text(0.04, 0.5, 'Value (EUR)', va='center', rotation='vertical')
+            #fig_compare_plot.text('Pricing trends of money')
+            fig_compare_plot.suptitle('Pricing trends of money')
+            subplot_to_display.append(ax)
+            
+            print(subplot_to_display)
+            
+            ax.label_outer()    
+            
+            #fig_compare_plot.subplots_adjust(left=1)
+            
         
     elif (len(button_check_index)==1):
-        subplot_to_display.append(fig_compare_plot.add_subplot(1,1,1))
+        ax = fig_compare_plot.add_subplot(1,1,1)
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Value (EUR)')
+        ax.set_title('Pricing trends of money')
+        subplot_to_display.append(ax)
 
     start_stop_scrap_multiplot()
 
@@ -343,7 +361,6 @@ Label_money_invest.pack( side = 'right')
 frame_my_money.pack(fill='x',side="top")
 checkbox_invest.pack(fill='y',side="right")
 invest_plot.pack(fill='both',side="left",expand=True)
-invest_Frame.pack(fill='both',side="top",expand=True)
 
 #===================PARTIE MULTIPLOT======================================================
 
@@ -377,7 +394,10 @@ for button in button_list:
 
 
 button_widget.pack(fill='y',side="right")
-#compare_plot.pack(fill='both',expand=True)
+if MODE==1:
+    invest_Frame.pack(fill='both',side="top",expand=True)
+elif MODE==2:
+    compare_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
