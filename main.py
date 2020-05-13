@@ -294,8 +294,8 @@ app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
     
-compare_plot=tk.Frame(app) 
-invest_Frame=tk.Frame(app)
+compare_plot=tk.Frame(app,width=1414, height=800) 
+invest_Frame=tk.Frame(app,width=1414, height=800)
 
 #======================HOME INTERFACE==================================================
 frame_Home=tk.Frame(app)
