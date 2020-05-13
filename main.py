@@ -235,6 +235,8 @@ def invest (flag,*args):
             compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
             MONEY_SCRAPPERS[invest_money].compte=compte
             
+            MONEY_SCRAPPERS[invest_money].stock_invest=0
+            
             investement=0 
             MONEY_SCRAPPERS[invest_money].invest=0
             
@@ -276,6 +278,8 @@ def choose_money_invest(money):
     
     subplot_to_display=[]
     subplot_to_display.append(fig_invest.add_subplot(1,1,1))
+    subplot_to_display[0].set_ylabel('Value (EUR)')
+    subplot_to_display[0].set_xlabel('Time')
 
     invest_money=money
     Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() 
