@@ -19,7 +19,7 @@ class Scrapper :
     PAUSE=10
     
     def __init__(self,name):
-        
+        #choose the correct webdriver
         try:
             self.driver=webdriver.Firefox(executable_path=r'./geckodriver/geckodriver.exe')
         except:
@@ -33,15 +33,14 @@ class Scrapper :
                        self.driver=webdriver.Chrome(executable_path=r'./chromedriver83/chromedriver.exe') 
                     except :
                         print('No Driver Available')
-                        
-        self.started=False
-        self.name=name
-        self.thread_flag=False
-        self.thread_flag_invest=False
-        self.invest=0
-        self.compte=0
-        self.first_invest=0
-        self.filename=str(self.name+'.csv')
+        
+        self.name=name #name of cryptomoney
+        self.thread_flag_scrapping=False #flag for scrapping
+        self.thread_flag_invest=False #flag for start or stop invest
+        self.invest=0#value of the investiment accord to the value of the money
+        self.compte=0#value of our money
+        self.first_invest=0#value initial of the investement
+        self.filename=str(self.name+'.csv')#name of file .csv
         self.file_exists = os.path.isfile(self.filename)
         thread_selenium = Thread(target=partial(self.init_selenium,Scrapper), args=(1,))
         thread_selenium.start()
@@ -72,13 +71,13 @@ class Scrapper :
     
     def start_and_stop_scrap(self,*args):
         
-        if self.thread_flag==False:
-            self.thread_flag=True
+        if self.thread_flag_scrapping==False:
+            self.thread_flag_scrapping=True
             thread_scrap = Thread(target=self.get_data, args=(1,))
             thread_scrap.start()
             
         else :
-            self.thread_flag=False
+            self.thread_flag_scrapping=False
             
     def start_and_stop_invest(self,my_money,my_invest,flag,*args):
         self.first_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
@@ -97,7 +96,7 @@ class Scrapper :
     #Fonction qui va scrapper la donnée 
     def get_data(self,*args):
         
-        while self.thread_flag==True :
+        while self.thread_flag_scrapping==True :
         
             time_start=time.process_time()
             price=self.driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]

@@ -33,22 +33,18 @@ for element in MONEY :
 
 #VARIABLES
 global MODE
-MODE=2
+MODE=1
 
-#BACK
-compte=1000
-investement=0
-invest_money=""
-flag_invest=False
+    #BACK
+compte=1000 #our money
+investement=0 #money we invest in a crypotmoney
+invest_money="" #cryptomoney choosen for investement
+flag_invest=False #flag we wil control the invest thread
 
-#FRONT
-app = tk.Tk()
-app.title('VisioCrypto')
-app.wm_iconbitmap('icon.ico')
-
-global subplot_to_display
-global money_plot
-global button_check_index
+    #FRONT
+global subplot_to_display #list will contain subplot of the figure
+global list_money_plot #list will contain title of money displayed
+global button_check_index #list will index of button clicked
 
 subplot_to_display=[]
 button_check_index = []
@@ -97,7 +93,7 @@ def update_plot():
                     subplot_to_display[i-1].lines.pop(0)
                 dataframe_money=MONEY_SCRAPPERS[money].dataFrame
                 subplot_to_display[i-1].plot(dataframe_money.Date,dataframe_money.Value,':o',color='orange')
-                fig_mulitplot.autofmt_xdate(rotation= 45)
+                fig_compare_plot.autofmt_xdate(rotation= 45)
                 canvas.draw()
         
         elif (checkbox_value.count("0") < 8):
@@ -105,7 +101,7 @@ def update_plot():
                 subplot_to_display[0].lines.pop(0)
             dataframe_money=MONEY_SCRAPPERS[MONEY[button_check_index[0]]].dataFrame
             subplot_to_display[0].plot(dataframe_money.Date,dataframe_money.Value,':o',color='orange')
-            fig_mulitplot.autofmt_xdate(rotation= 45)
+            fig_compare_plot.autofmt_xdate(rotation= 45)
             canvas.draw()
 
 def refresh():
@@ -137,11 +133,11 @@ def start_stop_scrap_multiplot():
 def get_checked_button():
     
     global subplot_to_display
-    global fig_mulitplot
+    global fig_compare_plot
     global button_check_index
     
-    for ax in fig_mulitplot.get_axes():
-        fig_mulitplot.delaxes(ax)
+    for ax in fig_compare_plot.get_axes():
+        fig_compare_plot.delaxes(ax)
         
     subplot_to_display=[]
     button_check_index=[]
@@ -154,10 +150,10 @@ def get_checked_button():
     
     if (len(button_check_index)==2):
         for i in range(1,3):
-            subplot_to_display.append(fig_mulitplot.add_subplot(1,2,i))
+            subplot_to_display.append(fig_compare_plot.add_subplot(1,2,i))
         
     elif (len(button_check_index)==1):
-        subplot_to_display.append(fig_mulitplot.add_subplot(1,1,1))
+        subplot_to_display.append(fig_compare_plot.add_subplot(1,1,1))
 
     start_stop_scrap_multiplot()
 
@@ -257,21 +253,25 @@ def choose_money_invest(money):
     
 
 #---- CREATE AND FILL APP ----
-multi_plot=tk.Frame(app)
+    
+app = tk.Tk()
+app.title('VisioCrypto')
+app.wm_iconbitmap('icon.ico')
+    
+compare_plot=tk.Frame(app) 
 invest_Frame=tk.Frame(app)
-invest_plot=tk.Frame(invest_Frame)
 
 #======================CANVAS==================================================
-    
-fig_mulitplot = Figure()
-fig_invest = Figure()
 
-graphic=tk.Frame(multi_plot)
-canvas = FigureCanvasTkAgg(fig_mulitplot, master=graphic)  # A tk.DrawingArea.
+graphic=tk.Frame(compare_plot)
+fig_compare_plot = Figure()
+canvas = FigureCanvasTkAgg(fig_compare_plot, master=graphic)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 graphic.pack(fill='both',side='left',expand=True)
 
+invest_plot=tk.Frame(invest_Frame)
 graphic_invest=tk.Frame(invest_plot)
+fig_invest = Figure()
 canvas_invest = FigureCanvasTkAgg(fig_invest, master=invest_plot)  # A tk.DrawingArea.
 canvas_invest.get_tk_widget().pack(fill="both", expand=True)
 graphic_invest.pack(fill='both',side='left',expand=True)
@@ -279,9 +279,9 @@ graphic_invest.pack(fill='both',side='left',expand=True)
 
 #===================PARTIE INVEST==============================================
 
-checkbox_invest=tk.Frame(invest_Frame)
-checkbox_container=[]
-frame_my_money=tk.Frame(invest_Frame)
+checkbox_invest=tk.Frame(invest_Frame) #Frame will contain all checkbox for invest
+checkbox_container=[] #list will contain checkbox for invest
+frame_my_money=tk.Frame(invest_Frame)#banner will contain ou money and our investement  
 
 
 var1_invest=tk.StringVar()
@@ -306,8 +306,6 @@ for checkbox in checkbox_container:
     checkbox.deselect()
     checkbox.pack(fill='both',side="top",expand=True)
 
-#on place la frame dans l'appli en haut de celle ci
-
 var_compte = tk.StringVar()
 var_compte.set(str(compte))
 
@@ -329,8 +327,8 @@ label_money.pack(side='left')
 button_stop_invest = tk.Button(frame_my_money, text='Stop',command=partial(invest,False),padx=10)
 button_stop_invest.pack( side = 'right')
 
-button_invest = tk.Button(frame_my_money, text='Go',command=partial(invest,True),padx=10)
-button_invest.pack( side = 'right')
+button_go_invest = tk.Button(frame_my_money, text='Go',command=partial(invest,True),padx=10)
+button_go_invest.pack( side = 'right')
 
 Entry_text = tk.StringVar()
 Entry_text.set('')
@@ -345,11 +343,11 @@ Label_money_invest.pack( side = 'right')
 frame_my_money.pack(fill='x',side="top")
 checkbox_invest.pack(fill='y',side="right")
 invest_plot.pack(fill='both',side="left",expand=True)
-#invest_Frame.pack(fill='both',side="top",expand=True)
+invest_Frame.pack(fill='both',side="top",expand=True)
 
 #===================PARTIE MULTIPLOT======================================================
 
-button_widget=tk.Frame(multi_plot)
+button_widget=tk.Frame(compare_plot)
 
 var1=tk.StringVar()
 var2=tk.StringVar()
@@ -379,7 +377,7 @@ for button in button_list:
 
 
 button_widget.pack(fill='y',side="right")
-multi_plot.pack(fill='both',expand=True)
+#compare_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
