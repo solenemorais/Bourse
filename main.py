@@ -33,7 +33,7 @@ for element in MONEY :
 
 #VARIABLES
 global MODE
-MODE=1
+MODE=0
 
     #BACK
 compte=1000 #our money
@@ -270,7 +270,23 @@ def choose_money_invest(money):
     invest_money=money
     Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() 
     refresh()
+
+def set_mode(mode_choosen):
+    global MODE
+    global frame_Home
+    global invest_Frame
+    global compare_plot
+    global invest_Frame
     
+    MODE=mode_choosen
+    
+    frame_Home.pack_forget()
+    
+    if MODE==1:
+        invest_Frame.pack(fill='both',side="top",expand=True)
+    elif MODE==2:
+        compare_plot.pack(fill='both',expand=True)
+
 
 #---- CREATE AND FILL APP ----
     
@@ -280,6 +296,30 @@ app.wm_iconbitmap('icon.ico')
     
 compare_plot=tk.Frame(app) 
 invest_Frame=tk.Frame(app)
+
+#======================HOME INTERFACE==================================================
+frame_Home=tk.Frame(app)
+
+img_button_inv= tk.PhotoImage(file="gold_button_inv.png", master = frame_Home)
+img_button_comp = tk.PhotoImage(file="gold_button_comp.png", master = frame_Home)
+img_comp=tk.PhotoImage(file="compare.png", master = frame_Home)
+img_inv=tk.PhotoImage(file="invest.png", master = frame_Home)
+
+frame_choice_invest = tk.Frame(frame_Home)
+frame_choice_invest.pack(side=tk.LEFT, fill=tk.BOTH, expand = True)
+
+frame_choice_compare = tk.Frame(frame_Home)
+frame_choice_compare.pack(side=tk.RIGHT, fill=tk.BOTH, expand = True)
+
+button_compare = tk.Button(frame_choice_compare, text="Compare cryptocurrency", bd=0,command=partial(set_mode,2))
+button_compare.config(image=img_comp)
+button_invest = tk.Button(frame_choice_invest, text="Invest in cryptocurrency", bd=0,command=partial(set_mode,1))
+button_invest.config(image=img_inv)
+
+button_compare.pack(side=tk.RIGHT, fill=tk.BOTH, expand = True)
+button_invest.pack(side=tk.LEFT, fill=tk.BOTH, expand = True)
+
+frame_Home.pack(fill='both',expand=True)
 
 #======================CANVAS==================================================
 
@@ -407,10 +447,6 @@ for button in button_list:
 
 button_widget.pack(fill='y',side="right")
 
-if MODE==1:
-    invest_Frame.pack(fill='both',side="top",expand=True)
-elif MODE==2:
-    compare_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
