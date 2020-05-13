@@ -40,14 +40,15 @@ class Scrapper :
         self.invest=0#value of the investiment accord to the value of the money
         self.compte=0#value of our money
         self.my_invest=0#value initial of the investement
-        self.stock_invest=0
+        self.stock_invest=0# varaible will stock the money invested when the cryptomonney loose value
         self.filename=str(self.name+'.csv')#name of file .csv
         self.file_exists = os.path.isfile(self.filename)
         self.max_dataFrame=0
         thread_selenium = Thread(target=partial(self.init_selenium,Scrapper), args=(1,))
         thread_selenium.start()
         self.dataFrame=pd.DataFrame({'Value':[],'Date':[]})
-        """
+        
+        """ We have comment this part because actually is more interessant to see the data in live in our application 
         if self.file_exists :
             
             self.dataFrame=pd.read_csv(self.filename,sep="/").reset_index(drop=True)
@@ -59,19 +60,19 @@ class Scrapper :
             self.dataFrame=pd.DataFrame({'Value':[],'Date':[]})
         """           
                               
-    def destroy(self,*args):
+    def destroy(self,*args): #destroy all thread, close webdriver and fill csv
 
         self.thread_flag_invest=False
         self.driver.close()
         self.filling_csv()
     
-    def init_selenium(self,*args):
+    def init_selenium(self,*args): #initialisation of the web page with the url of the cryptomonnaie
         
         self.url=str('https://trade.kraken.com/fr-fr/charts/KRAKEN:'+self.name+'-EUR')
         self.driver.get(self.url)
         
     
-    def start_and_stop_scrap(self,*args):
+    def start_and_stop_scrap(self,*args): #start or stop scrapping
         
         if self.thread_flag_scrapping==False:
             self.thread_flag_scrapping=True
@@ -81,15 +82,15 @@ class Scrapper :
         else :
             self.thread_flag_scrapping=False
             
-    def start_and_stop_invest(self,my_money,my_invest,flag,*args):
+    def start_and_stop_invest(self,my_money,my_invest,flag,*args):  #start or stop invest
         self.my_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         self.invest=0
         print(self.dataFrame['Value'][self.dataFrame.shape[0]-1])
         self.compte=my_money
-        thread_invest = Thread(target=partial(self.invest_my_money,my_money,my_invest), args=(1,))
+        thread_invest = Thread(target=self.invest_my_money, args=(1,))
         thread_invest.start()
     
-    def invest_my_money(self,*args):
+    def invest_my_money(self,*args): #manage the money invest
         self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         
@@ -98,7 +99,7 @@ class Scrapper :
             while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.max_dataFrame:
                 self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
                 self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-                time.sleep(1)
+                time.sleep(0.5)
             
             self.stock_invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
             self.my_invest=self.stock_invest
@@ -108,7 +109,7 @@ class Scrapper :
             
             while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.min_dataFrame:
                 self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1] 
-                time.sleep(1)
+                time.sleep(0.5)
             
             self.my_invest=self.stock_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
             self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
@@ -117,8 +118,8 @@ class Scrapper :
             self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
             
     
-    #Fonction qui va scrapper la donnée 
-    def get_data(self,*args):
+
+    def get_data(self,*args): # while loop while stock the data of the scrapping
         
         while self.thread_flag_scrapping==True :
         
@@ -145,8 +146,7 @@ class Scrapper :
             time.sleep(Scrapper.PAUSE-(time_stop-time_start))
     
     
-    #Fonction qui va remplir le csv avec la dataFrame 
-    def filling_csv (self):
+    def filling_csv (self): # filling the csv with de dataFrame
         
         if self.file_exists :
             
