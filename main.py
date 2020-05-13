@@ -36,9 +36,9 @@ global MODE
 MODE=2
 
     #BACK
-compte=1000 #our money
-investement=0 #money we invest in a crypotmoney
-invest_money="" #cryptomoney choosen for investement
+compte=1000      #our money
+investement=0    #money we invest in a crypotmoney
+invest_money=""  #cryptomoney choosen for investement
 flag_invest=False #flag we wil control the invest thread
 
     #FRONT
@@ -138,7 +138,8 @@ def get_checked_button():
     
     for ax in fig_compare_plot.get_axes():
         fig_compare_plot.delaxes(ax)
-        
+    fig_compare_plot.text(0.5, 0.04, 'Time', ha='center')
+    
     subplot_to_display=[]
     button_check_index=[]
     
@@ -153,7 +154,6 @@ def get_checked_button():
             ax = fig_compare_plot.add_subplot(1,2,i)
             #ax.set_xlabel('Time')
             ax.set_ylabel('Value (EUR)')
-            fig_compare_plot.text(0.5, 0.04, 'Time', ha='center')
             #fig_compare_plot.text(0.04, 0.5, 'Value (EUR)', va='center', rotation='vertical')
             #fig_compare_plot.text('Pricing trends of money')
             fig_compare_plot.suptitle('Pricing trends of money')
@@ -170,7 +170,6 @@ def get_checked_button():
         ax = fig_compare_plot.add_subplot(1,1,1)
         ax.set_xlabel('Time')
         ax.set_ylabel('Value (EUR)')
-        ax.set_title('Pricing trends of money')
         subplot_to_display.append(ax)
 
     start_stop_scrap_multiplot()
@@ -264,6 +263,9 @@ def choose_money_invest(money):
     
     subplot_to_display=[]
     subplot_to_display.append(fig_invest.add_subplot(1,1,1))
+    subplot_to_display[0].set_xlabel('Time')
+    subplot_to_display[0].set_ylabel('Value (EUR)')
+    subplot_to_display[0].set_title('Pricing trends of money')
 
     invest_money=money
     Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() 
