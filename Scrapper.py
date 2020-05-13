@@ -81,8 +81,8 @@ class Scrapper :
             self.thread_flag=False
             
     def start_and_stop_invest(self,my_money,my_invest,flag,*args):
-        self.first_invest= my_invest
-        self.invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        self.first_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        self.invest=0
         print(self.dataFrame['Value'][self.dataFrame.shape[0]-1])
         self.compte=my_money
         thread_invest = Thread(target=partial(self.invest_my_money,my_money,my_invest), args=(1,))
@@ -90,19 +90,9 @@ class Scrapper :
     
     def invest_my_money(self,*args):
         
-        value_max=0
-        value_min=0
-        invest_init=0
-        invest_on_compte=0
-        
         while self.thread_flag_invest==True :
-            print(self.invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1])
-            """
-            if self.dataFrame['Value'][self.dataFrame.shape[0]-1]>self.dataFrame['Value'][self.dataFrame.shape[0]-2] :
-                if self.dataFrame['Value'][self.dataFrame.shape[0]-1]>value_max : 
-                    value_max=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            """
-            time.sleep(Scrapper.PAUSE)
+            self.invest=self.first_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            time.sleep(Scrapper.PAUSE/2)
     
     #Fonction qui va scrapper la donnée 
     def get_data(self,*args):

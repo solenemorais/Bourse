@@ -29,11 +29,11 @@ def init_scrappers (element,*args):
     
 for element in MONEY :
     Thread(target=partial(init_scrappers,element), args=(1,)).start()
-    time.sleep(2)
+    time.sleep(4)
 
 #VARIABLES
 global MODE
-MODE=1
+MODE=2
 
 #BACK
 compte=1000
@@ -69,18 +69,23 @@ def update_plot():
     if(MODE==1):
         dataframe_money=MONEY_SCRAPPERS[invest_money].dataFrame
         
-        if len(subplot_to_display[0].lines)>0:
-                subplot_to_display[0].lines.pop(0)
-                
+        if len(subplot_to_display[0].lines)>0 and len(subplot_to_display[0].lines)<2:
+            subplot_to_display[0].lines.pop(0)
+            
+        elif len(subplot_to_display[0].lines)>0 and len(subplot_to_display[0].lines)>=2:
+            
+            subplot_to_display[0].lines.pop(0)
+            subplot_to_display[0].lines.pop(0)
+            
         if dataframe_money.shape[0] > 3:
             subplot_to_display[0].plot(dataframe_money['Date'][:-1],dataframe_money['Value'][:-1],":o",color="orange")
             subplot_to_display[0].plot(dataframe_money['Date'][-2:],dataframe_money['Value'][-2:],"--",color="purple")
-            fig.autofmt_xdate(rotation=45)
+            fig_invest.autofmt_xdate(rotation=45)
             canvas_invest.draw()
             
         else:
             subplot_to_display[0].plot(dataframe_money['Date'],dataframe_money['Value'],":o",color="orange")
-            fig.autofmt_xdate(rotation=45)
+            fig_invest.autofmt_xdate(rotation=45)
             canvas_invest.draw()
         
     elif(MODE==2):
@@ -92,7 +97,7 @@ def update_plot():
                     subplot_to_display[i-1].lines.pop(0)
                 dataframe_money=MONEY_SCRAPPERS[money].dataFrame
                 subplot_to_display[i-1].plot(dataframe_money.Date,dataframe_money.Value,':o',color='orange')
-                fig.autofmt_xdate(rotation= 45)
+                fig_mulitplot.autofmt_xdate(rotation= 45)
                 canvas.draw()
         
         elif (checkbox_value.count("0") < 8):
@@ -100,7 +105,7 @@ def update_plot():
                 subplot_to_display[0].lines.pop(0)
             dataframe_money=MONEY_SCRAPPERS[MONEY[button_check_index[0]]].dataFrame
             subplot_to_display[0].plot(dataframe_money.Date,dataframe_money.Value,':o',color='orange')
-            fig.autofmt_xdate(rotation= 45)
+            fig_mulitplot.autofmt_xdate(rotation= 45)
             canvas.draw()
 
 def refresh():
@@ -118,12 +123,12 @@ def start_stop_scrap_multiplot():
     for i,money in enumerate(checkbox_value):
         if (money == "0"):
             if MONEY[i] in list_money_plot:
-                Thread(target=MONEY_SCRAPPERS[MONEY[i]].start_and_stop, args=(1,)).start()
+                Thread(target=MONEY_SCRAPPERS[MONEY[i]].start_and_stop_scrap, args=(1,)).start()
                 list_money_plot.remove(MONEY[i])
         
         if (money != "0"):
             if MONEY[i] not in list_money_plot:
-                Thread(target=MONEY_SCRAPPERS[money].start_and_stop, args=(1,)).start()  
+                Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start()  
                 list_money_plot.append(MONEY[i])
     refresh()
 
@@ -132,11 +137,11 @@ def start_stop_scrap_multiplot():
 def get_checked_button():
     
     global subplot_to_display
-    global fig
+    global fig_mulitplot
     global button_check_index
     
-    for ax in fig.get_axes():
-        fig.delaxes(ax)
+    for ax in fig_mulitplot.get_axes():
+        fig_mulitplot.delaxes(ax)
         
     subplot_to_display=[]
     button_check_index=[]
@@ -149,10 +154,10 @@ def get_checked_button():
     
     if (len(button_check_index)==2):
         for i in range(1,3):
-            subplot_to_display.append(fig.add_subplot(1,2,i))
+            subplot_to_display.append(fig_mulitplot.add_subplot(1,2,i))
         
     elif (len(button_check_index)==1):
-        subplot_to_display.append(fig.add_subplot(1,1,1))
+        subplot_to_display.append(fig_mulitplot.add_subplot(1,1,1))
 
     start_stop_scrap_multiplot()
 
@@ -208,12 +213,11 @@ def invest (flag,*args):
             
         if flag==False:
             MONEY_SCRAPPERS[invest_money].thread_flag_invest=flag
-            print(MONEY_SCRAPPERS[invest_money].dataFrame['Value'][MONEY_SCRAPPERS[invest_money].dataFrame.shape[0]-1])
-            compte=(MONEY_SCRAPPERS[invest_money].invest*MONEY_SCRAPPERS[invest_money].dataFrame['Value'][MONEY_SCRAPPERS[invest_money].dataFrame.shape[0]-1])+MONEY_SCRAPPERS[invest_money].compte
+            compte=MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
             MONEY_SCRAPPERS[invest_money].compte=compte
             
             investement=0 
-            MONEY_SCRAPPERS[invest_money].invest=investement
+            MONEY_SCRAPPERS[invest_money].invest=0
             
     else :
         tk.messagebox.showinfo("Attention", "Vous devez choisir une monnaie")
@@ -235,13 +239,17 @@ def plot(*args):
         
     var_invest.set(str(investement))
     var_compte.set(str(compte))
-        
+       
+
 def choose_money_invest(money):
     global invest_money
     global subplot_to_display
-    if len(subplot_to_display)==0:
-
-        subplot_to_display.append(fig.add_subplot(1,1,1))
+    
+    for ax in fig_invest.get_axes():
+        fig_invest.delaxes(ax)
+    
+    subplot_to_display=[]
+    subplot_to_display.append(fig_invest.add_subplot(1,1,1))
 
     invest_money=money
     Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() 
@@ -251,26 +259,27 @@ def choose_money_invest(money):
 #---- CREATE AND FILL APP ----
 multi_plot=tk.Frame(app)
 invest_Frame=tk.Frame(app)
-invest_plot_chexbox=tk.Frame(invest_Frame)
+invest_plot=tk.Frame(invest_Frame)
 
-#===================CANVAS======================================================
+#======================CANVAS==================================================
     
-fig = Figure()
+fig_mulitplot = Figure()
+fig_invest = Figure()
 
 graphic=tk.Frame(multi_plot)
-canvas = FigureCanvasTkAgg(fig, master=graphic)  # A tk.DrawingArea.
+canvas = FigureCanvasTkAgg(fig_mulitplot, master=graphic)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 graphic.pack(fill='both',side='left',expand=True)
 
-graphic_invest=tk.Frame(invest_plot_chexbox)
-canvas_invest = FigureCanvasTkAgg(fig, master=invest_plot_chexbox)  # A tk.DrawingArea.
+graphic_invest=tk.Frame(invest_plot)
+canvas_invest = FigureCanvasTkAgg(fig_invest, master=invest_plot)  # A tk.DrawingArea.
 canvas_invest.get_tk_widget().pack(fill="both", expand=True)
-graphic_invest.pack(side='left',expand=True)
-
-#===================PARTIE INVEST===============================================
+graphic_invest.pack(fill='both',side='left',expand=True)
 
 
-checkbox_invest=tk.Frame(invest_plot_chexbox)
+#===================PARTIE INVEST==============================================
+
+checkbox_invest=tk.Frame(invest_Frame)
 checkbox_container=[]
 frame_my_money=tk.Frame(invest_Frame)
 
@@ -295,7 +304,7 @@ checkbox_container.append(tk.Checkbutton(checkbox_invest, text='WAVES', variable
 
 for checkbox in checkbox_container:
     checkbox.deselect()
-    checkbox.pack(fill='both',side="top")
+    checkbox.pack(fill='both',side="top",expand=True)
 
 #on place la frame dans l'appli en haut de celle ci
 
@@ -311,7 +320,7 @@ label_money=tk.Label(frame_my_money,textvariable =var_compte,pady=10)
 label_my_money.pack(side='left')
 label_money.pack(side='left')
 
-label_my_money=tk.Label(frame_my_money,text='Unity :',pady=10,padx=10)
+label_my_money=tk.Label(frame_my_money,text='Value Investement :',pady=10,padx=10)
 label_money=tk.Label(frame_my_money,textvariable=var_invest,pady=10)
 
 label_my_money.pack(side='left')
@@ -335,8 +344,8 @@ Label_money_invest.pack( side = 'right')
 
 frame_my_money.pack(fill='x',side="top")
 checkbox_invest.pack(fill='y',side="right")
-invest_plot_chexbox.pack(fill='both',side="top",expand=True)
-invest_Frame.pack(fill='both',side="top",expand=True)
+invest_plot.pack(fill='both',side="left",expand=True)
+#invest_Frame.pack(fill='both',side="top",expand=True)
 
 #===================PARTIE MULTIPLOT======================================================
 
@@ -370,12 +379,13 @@ for button in button_list:
 
 
 button_widget.pack(fill='y',side="right")
-#multi_plot.pack(fill='both',expand=True)
+multi_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
 for scrapper in MONEY:
     Thread(target=MONEY_SCRAPPERS[scrapper].destroy(), args=(1,)).start()
+    time.sleep(1)
 
 
 
