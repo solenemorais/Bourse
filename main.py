@@ -7,11 +7,13 @@ Created on Wed Apr 29 17:27:00 2020
 
 #IMPORT
 
-
+import matplotlib
+matplotlib.use("TkAgg")
 import tkinter as tk
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 import Scrapper
 from threading import Thread
 import pandas as pd
@@ -29,11 +31,11 @@ def init_scrappers (element,*args):
     
 for element in MONEY :
     Thread(target=partial(init_scrappers,element), args=(1,)).start()
-    time.sleep(4)
+    time.sleep(5)
 
 #VARIABLES
 global MODE
-MODE=1
+MODE=0
 
     #BACK
 compte=1000 #our money
@@ -53,9 +55,9 @@ list_money_plot=[]
 
 #FONCTION
 
-def update_plot():
+def update_plot(): #update the plots 
     
-    global MODE
+    global MODE #depend of the mode chosen
     global invest_money
     global subplot_to_display
     global list_data_plot
@@ -63,7 +65,7 @@ def update_plot():
     global MONEY_SCRAPPERS
     global list_money_plot
     
-    if(MODE==1):
+    if(MODE==1): #execution for the mode 1
         dataframe_money=MONEY_SCRAPPERS[invest_money].dataFrame
         
         if len(subplot_to_display[0].lines)>0 and len(subplot_to_display[0].lines)<2:
@@ -85,7 +87,7 @@ def update_plot():
             fig_invest.autofmt_xdate(rotation=45)
             canvas_invest.draw()
         
-    elif(MODE==2):
+    elif(MODE==2): #execution for the mode 2
         checkbox_value=[var1.get(), var2.get(), var3.get(), var4.get(), var5.get(), var6.get(), var7.get(), var8.get()]
         
         if (checkbox_value.count("0") < 7):
@@ -110,20 +112,21 @@ def refresh():
     app.after(500, refresh)
           
 
-def start_stop_scrap_multiplot():
+def start_stop_scrap_multiplot():  #if we have several plots we start and stop the threads for scraping
+    
     
     global list_money_plot
-    global checkbox_value
+    global checkbox_value #stock the values of the buttons
     
     checkbox_value=[var1.get(), var2.get(), var3.get(), var4.get(), var5.get(), var6.get(), var7.get(), var8.get()]
     
     for i,money in enumerate(checkbox_value):
-        if (money == "0"):
+        if (money == "0"): #the box is checked
             if MONEY[i] in list_money_plot:
                 Thread(target=MONEY_SCRAPPERS[MONEY[i]].start_and_stop_scrap, args=(1,)).start()
                 list_money_plot.remove(MONEY[i])
         
-        if (money != "0"):
+        if (money != "0"): #the box is unchecked
             if MONEY[i] not in list_money_plot:
                 Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start()  
                 list_money_plot.append(MONEY[i])
@@ -131,7 +134,7 @@ def start_stop_scrap_multiplot():
 
 
 
-def get_checked_button():
+def get_checked_button(): #calculate the number of button checked to dispaly the number of plots
     
     global subplot_to_display
     global fig_compare_plot
@@ -139,47 +142,63 @@ def get_checked_button():
     
     for ax in fig_compare_plot.get_axes():
         fig_compare_plot.delaxes(ax)
-        
+    fig_compare_plot.text(0.5, 0.04, 'Time', ha='center') 
+    fig_compare_plot.suptitle('Pricing trends of money')
+    
     subplot_to_display=[]
     button_check_index=[]
     
     checkbox_value=[var1.get(), var2.get(), var3.get(), var4.get(), var5.get(), var6.get(), var7.get(), var8.get()]
     
     for value in checkbox_value:
-        if value!="0":
+        if value!="0": #we check if there is a button checked
             number_checked(value)   
     
-    if (len(button_check_index)==2):
+    if (len(button_check_index)==2): #set the subplots for two moneys
         for i in range(1,3):
-            subplot_to_display.append(fig_compare_plot.add_subplot(1,2,i))
+            ax = fig_compare_plot.add_subplot(1,2,i)
+            ax.set_title(MONEY[button_check_index[i-1]])
+            ax.set_ylabel('Value (EUR)')
+            fig_compare_plot.suptitle('Pricing trends of money')
+            subplot_to_display.append(ax)
+            print(subplot_to_display)
+            ax.label_outer()    
+            
+            
         
-    elif (len(button_check_index)==1):
-        subplot_to_display.append(fig_compare_plot.add_subplot(1,1,1))
+    elif (len(button_check_index)==1): #set the subplot for one money
+        ax = fig_compare_plot.add_subplot(1,1,1)
+        ax.set_title(MONEY[button_check_index[0]])
+        ax.set_ylabel('Value (EUR)')
+        subplot_to_display.append(ax)
 
     start_stop_scrap_multiplot()
 
-def number_checked(value):
+def number_checked(value): #checked the number of money the user choose in the mode compare
     global button_check_index
     
+    #store the values of the checkbutton in a list
+    #0 if unchecked et the name of the money if checked
     checkbox_value=[var1.get(), var2.get(), var3.get(), var4.get(), var5.get(), var6.get(), var7.get(), var8.get()]
     
-    if (checkbox_value.count("0") < 7):
+    if (checkbox_value.count("0") < 7): #there are 2 values of money 
         j = checkbox_value.index(value)
         button_check_index.append(j)
         if (len(button_check_index)>1):
             for element in range(8):
                 if element not in button_check_index:
-                    button_list[element].config(state=tk.DISABLED)
+                    button_list[element].config(state=tk.DISABLED) #disable the other buttons
+                    #therefore the user cannot choose more than 2 values
                 
-    elif (checkbox_value.count("0") < 8):
+    elif (checkbox_value.count("0") < 8): #only one value of money
         for button in button_list:
             button.config(state=tk.NORMAL)
         button_check_index.append(checkbox_value.index(value))
         
-                 
-            
-#ici en fonction de la monnaie choisie on va exécuter la fonction correspondante
-#Par exemple ici si la monnaie est BTC on va exécuter la fonction BTC()    
+         
+#we execute the right function
+#for example if the chosen money is BTC we execute the BTC() function        
+              
 
 
 def invest (flag,*args):
@@ -216,19 +235,16 @@ def invest (flag,*args):
             
         if flag==False:
             MONEY_SCRAPPERS[invest_money].thread_flag_invest=flag
+                
+            compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
+            MONEY_SCRAPPERS[invest_money].compte=compte
             
-            if MONEY_SCRAPPERS[invest_money].invest != 0 :
-                compte=MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
-                MONEY_SCRAPPERS[invest_money].compte=compte
-            elif MONEY_SCRAPPERS[invest_money].invest == 0:
-                compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].compte
-                MONEY_SCRAPPERS[invest_money].compte=compte
+            MONEY_SCRAPPERS[invest_money].stock_invest=0
             
             investement=0 
             MONEY_SCRAPPERS[invest_money].invest=0
             
             stock=0
-            MONEY_SCRAPPERS[invest_money].stock_invest=0 
             
     else :
         tk.messagebox.showinfo("Attention", "Vous devez choisir une monnaie")
@@ -257,29 +273,71 @@ def plot(*args):
     var_stock.set(str(stock))
        
 
-def choose_money_invest(money):
-    global invest_money
+def choose_money_invest(money): #for the invest mode
+    global invest_money 
     global subplot_to_display
     
     for ax in fig_invest.get_axes():
-        fig_invest.delaxes(ax)
+        fig_invest.delaxes(ax) #delete axes
     
     subplot_to_display=[]
-    subplot_to_display.append(fig_invest.add_subplot(1,1,1))
+    subplot_to_display.append(fig_invest.add_subplot(1,1,1)) 
+    subplot_to_display[0].set_ylabel('Value (EUR)')
+    subplot_to_display[0].set_xlabel('Time')
 
     invest_money=money
-    Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() 
+    Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() #launch the thread of the money scraper
     refresh()
+
+def set_mode(mode_choosen): #display the frame of the chosen mode
+    global MODE #variable of the mode
+    global frame_Home
+    global invest_Frame
+    global compare_plot
     
+    MODE=mode_choosen
+    
+    frame_Home.pack_forget() #erase the home interface to permit the display of the new frame
+    
+    if MODE==1: #mode invest
+        invest_Frame.pack(fill='both',side="top",expand=True)
+    elif MODE==2: #mode compare
+        compare_plot.pack(fill='both',expand=True)
+
 
 #---- CREATE AND FILL APP ----
     
 app = tk.Tk()
 app.title('VisioCrypto')
 app.wm_iconbitmap('icon.ico')
+app.geometry("1414x700")
     
 compare_plot=tk.Frame(app) 
 invest_Frame=tk.Frame(app)
+
+#======================HOME INTERFACE==================================================
+frame_Home=tk.Frame(app)
+
+img_button_inv= tk.PhotoImage(file="gold_button_inv.png", master = frame_Home)
+img_button_comp = tk.PhotoImage(file="gold_button_comp.png", master = frame_Home)
+img_comp=tk.PhotoImage(file="compare.png", master = frame_Home)
+img_inv=tk.PhotoImage(file="invest.png", master = frame_Home)
+
+frame_choice_invest = tk.Frame(frame_Home)
+frame_choice_invest.pack(side=tk.LEFT, fill=tk.BOTH, expand = True)
+
+frame_choice_compare = tk.Frame(frame_Home)
+frame_choice_compare.pack(side=tk.RIGHT, fill=tk.BOTH, expand = True)
+
+button_compare = tk.Button(frame_choice_compare, text="Compare cryptocurrency", bd=0,command=partial(set_mode,2))
+button_compare.config(image=img_comp)
+button_invest = tk.Button(frame_choice_invest, text="Invest in cryptocurrency", bd=0,command=partial(set_mode,1))
+button_invest.config(image=img_inv)
+
+button_compare.pack(side=tk.RIGHT, fill=tk.BOTH, expand = True)
+button_invest.pack(side=tk.LEFT, fill=tk.BOTH, expand = True)
+
+frame_Home.pack(fill='both',expand=True)
 
 #======================CANVAS==================================================
 
@@ -288,6 +346,10 @@ fig_compare_plot = Figure()
 canvas = FigureCanvasTkAgg(fig_compare_plot, master=graphic)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(fill="both", expand=True)
 graphic.pack(fill='both',side='left',expand=True)
+
+toolbar = NavigationToolbar2Tk(canvas, graphic)
+toolbar.update()
+canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 invest_plot=tk.Frame(invest_Frame)
 graphic_invest=tk.Frame(invest_plot)
@@ -407,10 +469,6 @@ for button in button_list:
 
 button_widget.pack(fill='y',side="right")
 
-if MODE==1:
-    invest_Frame.pack(fill='both',side="top",expand=True)
-elif MODE==2:
-    compare_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
