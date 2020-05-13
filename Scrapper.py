@@ -39,9 +39,11 @@ class Scrapper :
         self.thread_flag_invest=False #flag for start or stop invest
         self.invest=0#value of the investiment accord to the value of the money
         self.compte=0#value of our money
-        self.first_invest=0#value initial of the investement
+        self.my_invest=0#value initial of the investement
+        self.stock_invest=0
         self.filename=str(self.name+'.csv')#name of file .csv
         self.file_exists = os.path.isfile(self.filename)
+        self.max_dataFrame=0
         thread_selenium = Thread(target=partial(self.init_selenium,Scrapper), args=(1,))
         thread_selenium.start()
         self.dataFrame=pd.DataFrame({'Value':[],'Date':[]})
@@ -80,7 +82,7 @@ class Scrapper :
             self.thread_flag_scrapping=False
             
     def start_and_stop_invest(self,my_money,my_invest,flag,*args):
-        self.first_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        self.my_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         self.invest=0
         print(self.dataFrame['Value'][self.dataFrame.shape[0]-1])
         self.compte=my_money
@@ -88,10 +90,32 @@ class Scrapper :
         thread_invest.start()
     
     def invest_my_money(self,*args):
+        self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         
         while self.thread_flag_invest==True :
-            self.invest=self.first_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            time.sleep(Scrapper.PAUSE/2)
+            
+            while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.max_dataFrame:
+                self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+                self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+                time.sleep(1)
+            
+            self.stock_invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            self.my_invest=self.stock_invest
+            self.invest=0
+            
+            self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            
+            while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.min_dataFrame:
+                self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1] 
+                time.sleep(1)
+            
+            self.my_invest=self.stock_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            self.stock_invest=0
+            
+            self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+            
     
     #Fonction qui va scrapper la donnée 
     def get_data(self,*args):

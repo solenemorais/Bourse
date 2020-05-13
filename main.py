@@ -39,6 +39,7 @@ MODE=1
 compte=1000 #our money
 investement=0 #money we invest in a crypotmoney
 invest_money="" #cryptomoney choosen for investement
+stock=0
 flag_invest=False #flag we wil control the invest thread
 
     #FRONT
@@ -185,11 +186,13 @@ def invest (flag,*args):
 
     global compte
     global investement
+    global stock
     global invest_money
     global MONEY_SCRAPPERS
     global Entry_text
     global var_invest
     global var_compte
+    global var_stock
     
     if invest_money != "" :
         if flag==True and MONEY_SCRAPPERS[invest_money].thread_flag_invest == False :
@@ -203,17 +206,29 @@ def invest (flag,*args):
             Thread(target=plot, args=(1,)).start()
             
         elif flag==True and MONEY_SCRAPPERS[invest_money].thread_flag_invest == True:
-            MONEY_SCRAPPERS[invest_money].invest=MONEY_SCRAPPERS[invest_money].invest+int(Entry_text.get())
-            MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
-            
+            if MONEY_SCRAPPERS[invest_money].invest != 0 :
+                MONEY_SCRAPPERS[invest_money].invest=MONEY_SCRAPPERS[invest_money].invest+int(Entry_text.get())
+                MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
+                
+            elif MONEY_SCRAPPERS[invest_money].invest == 0:
+                MONEY_SCRAPPERS[invest_money].stock_invest=MONEY_SCRAPPERS[invest_money].stock_invest.invest+int(Entry_text.get())
+                MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
             
         if flag==False:
             MONEY_SCRAPPERS[invest_money].thread_flag_invest=flag
-            compte=MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
-            MONEY_SCRAPPERS[invest_money].compte=compte
+            
+            if MONEY_SCRAPPERS[invest_money].invest != 0 :
+                compte=MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
+                MONEY_SCRAPPERS[invest_money].compte=compte
+            elif MONEY_SCRAPPERS[invest_money].invest == 0:
+                compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].compte
+                MONEY_SCRAPPERS[invest_money].compte=compte
             
             investement=0 
             MONEY_SCRAPPERS[invest_money].invest=0
+            
+            stock=0
+            MONEY_SCRAPPERS[invest_money].stock_invest=0 
             
     else :
         tk.messagebox.showinfo("Attention", "Vous devez choisir une monnaie")
@@ -223,18 +238,23 @@ def plot(*args):
     global invest_money
     global compte
     global investement
+    global stock
     global MONEY_SCRAPPERS
     global var_invest
     global var_compte
+    global var_stock
     
     while MONEY_SCRAPPERS[invest_money].thread_flag_invest == True :
         var_invest.set(str(MONEY_SCRAPPERS[invest_money].invest))
         investement=MONEY_SCRAPPERS[invest_money].invest
         var_compte.set(str(MONEY_SCRAPPERS[invest_money].compte))
         compte=MONEY_SCRAPPERS[invest_money].compte
+        var_stock.set(str(MONEY_SCRAPPERS[invest_money].stock_invest))
+        stock=MONEY_SCRAPPERS[invest_money].stock_invest
         
     var_invest.set(str(investement))
     var_compte.set(str(compte))
+    var_stock.set(str(stock))
        
 
 def choose_money_invest(money):
@@ -309,20 +329,29 @@ for checkbox in checkbox_container:
 var_compte = tk.StringVar()
 var_compte.set(str(compte))
 
+label_account=tk.Label(frame_my_money,text='Compte :',pady=10,padx=10)
+label_var_account=tk.Label(frame_my_money,textvariable =var_compte,pady=10)
+
+label_account.pack(side='left')
+label_var_account.pack(side='left')
+
 var_invest = tk.StringVar()
 var_invest.set(str(investement))
 
-label_my_money=tk.Label(frame_my_money,text='Compte :',pady=10,padx=10)
-label_money=tk.Label(frame_my_money,textvariable =var_compte,pady=10)
+label_my_invest=tk.Label(frame_my_money,text='Invest :',pady=10,padx=10)
+label_var_my_invest=tk.Label(frame_my_money,textvariable=var_invest,pady=10)
 
-label_my_money.pack(side='left')
-label_money.pack(side='left')
+label_my_invest.pack(side='left')
+label_var_my_invest.pack(side='left')
 
-label_my_money=tk.Label(frame_my_money,text='Value Investement :',pady=10,padx=10)
-label_money=tk.Label(frame_my_money,textvariable=var_invest,pady=10)
+var_stock = tk.StringVar()
+var_stock.set('0')
 
-label_my_money.pack(side='left')
-label_money.pack(side='left')
+label_my_stock=tk.Label(frame_my_money,text='Stock :',pady=10,padx=10)
+label_var_my_stock=tk.Label(frame_my_money,textvariable=var_stock,pady=10)
+
+label_my_stock.pack(side='left')
+label_var_my_stock.pack(side='left')
 
 button_stop_invest = tk.Button(frame_my_money, text='Stop',command=partial(invest,False),padx=10)
 button_stop_invest.pack( side = 'right')
@@ -336,14 +365,14 @@ Entry_text.set('')
 Entry_money_invest = tk.Entry(frame_my_money,textvariable=Entry_text)
 Entry_money_invest.pack(side = 'right')
 
-Label_money_invest = tk.Label(frame_my_money, text="Invest :",padx=10, pady=10)
+Label_money_invest = tk.Label(frame_my_money, text="Add :",padx=10, pady=10)
 Label_money_invest.pack( side = 'right')
 
 
 frame_my_money.pack(fill='x',side="top")
 checkbox_invest.pack(fill='y',side="right")
 invest_plot.pack(fill='both',side="left",expand=True)
-invest_Frame.pack(fill='both',side="top",expand=True)
+
 
 #===================PARTIE MULTIPLOT======================================================
 
@@ -377,7 +406,11 @@ for button in button_list:
 
 
 button_widget.pack(fill='y',side="right")
-#compare_plot.pack(fill='both',expand=True)
+
+if MODE==1:
+    invest_Frame.pack(fill='both',side="top",expand=True)
+elif MODE==2:
+    compare_plot.pack(fill='both',expand=True)
 
 app.mainloop()
 
