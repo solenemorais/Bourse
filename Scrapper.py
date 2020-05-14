@@ -83,7 +83,8 @@ class Scrapper :
             self.thread_flag_scrapping=False
             
     def start_and_stop_invest(self,my_money,my_invest,flag,*args):  #start or stop invest
-        self.my_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+        self.my_invest=my_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+        print("On a temps d'unité de crypto' : ",self.my_invest)
         self.invest=0
         print(self.dataFrame['Value'][self.dataFrame.shape[0]-1])
         self.compte=my_money
@@ -95,27 +96,29 @@ class Scrapper :
         self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
         
         while self.thread_flag_invest==True :
+            if self.dataFrame.shape[0] > 3:
             
-            while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.max_dataFrame:
-                self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-                self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-                time.sleep(0.5)
-            
-            self.stock_invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            self.my_invest=self.stock_invest
-            self.invest=0
-            
-            self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            
-            while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.min_dataFrame:
-                self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1] 
-                time.sleep(0.5)
-            
-            self.my_invest=self.stock_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-1]
-            self.stock_invest=0
-            
-            self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-1]
+                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.max_dataFrame:
+                    self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                    self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                    time.sleep(0.5)
+                
+                self.stock_invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                self.my_invest=self.stock_invest
+                self.invest=0
+                
+                self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                
+                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.min_dataFrame:
+                    self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2] 
+                    time.sleep(0.5)
+                
+                self.my_invest=self.stock_invest/self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-2]
+                self.stock_invest=0
+                
+                print("On a temps d'unité de crypto' : ",self.my_invest)
+                self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2]
             
     
 
