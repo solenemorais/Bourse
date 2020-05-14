@@ -233,7 +233,7 @@ def invest (flag,*args):
                 MONEY_SCRAPPERS[invest_money].stock_invest=MONEY_SCRAPPERS[invest_money].stock_invest.invest+int(Entry_text.get())
                 MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
             
-        if flag==False:
+        elif flag==False:
             MONEY_SCRAPPERS[invest_money].thread_flag_invest=flag
                 
             compte=MONEY_SCRAPPERS[invest_money].stock_invest+MONEY_SCRAPPERS[invest_money].invest+MONEY_SCRAPPERS[invest_money].compte
@@ -274,7 +274,7 @@ def plot(*args):
        
 
 def choose_money_invest(money): #for the invest mode
-    global invest_money 
+    global invest_money  #monney we have choose to invest
     global subplot_to_display
     
     for ax in fig_invest.get_axes():
@@ -286,6 +286,7 @@ def choose_money_invest(money): #for the invest mode
     subplot_to_display[0].set_xlabel('Time')
 
     invest_money=money
+    
     Thread(target=MONEY_SCRAPPERS[money].start_and_stop_scrap, args=(1,)).start() #launch the thread of the money scraper
     refresh()
 

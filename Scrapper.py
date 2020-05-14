@@ -127,18 +127,19 @@ class Scrapper :
         while self.thread_flag_scrapping==True :
         
             time_start=time.process_time()
+            
             price=self.driver.find_element_by_id("price-ticker").find_elements_by_tag_name('span')[1]
 
             if self.dataFrame.shape[0] > 3:
                 self.dataFrame.loc[self.dataFrame.shape[0]-1]=[float(price.text[:-4]),datetime.now()]
                 time_n1= datetime.now() + timedelta(0, 10, 0)
-                predict=mean(self.dataFrame['Value'][-2:].to_list())
+                predict=mean(self.dataFrame['Value'][-3:].to_list())
                 self.dataFrame.loc[self.dataFrame.shape[0]]=[float(predict),time_n1]
                 
             elif self.dataFrame.shape[0] == 2 :
                 self.dataFrame.loc[self.dataFrame.shape[0]]=[float(price.text[:-4]),datetime.now()]
                 time_n1= datetime.now() + timedelta(0, 10, 0)
-                predict=mean(self.dataFrame['Value'][-2:].to_list())   
+                predict=mean(self.dataFrame['Value'][-3:].to_list())   
                 self.dataFrame.loc[self.dataFrame.shape[0]]=[float(predict),time_n1]
                 
             else:
