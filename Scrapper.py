@@ -98,7 +98,7 @@ class Scrapper :
         while self.thread_flag_invest==True :
             if self.dataFrame.shape[0] > 3:
             
-                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.max_dataFrame:
+                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.max_dataFrame:
                     self.max_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2]
                     self.invest=self.my_invest*self.dataFrame['Value'][self.dataFrame.shape[0]-2]
                     time.sleep(0.5)
@@ -109,7 +109,7 @@ class Scrapper :
                 
                 self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2]
                 
-                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]<=self.min_dataFrame:
+                while self.dataFrame['Value'][self.dataFrame.shape[0]-1]>=self.min_dataFrame:
                     self.min_dataFrame=self.dataFrame['Value'][self.dataFrame.shape[0]-2] 
                     time.sleep(0.5)
                 

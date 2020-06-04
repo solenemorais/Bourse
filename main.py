@@ -226,11 +226,12 @@ def invest (flag,*args):
             
         elif flag==True and MONEY_SCRAPPERS[invest_money].thread_flag_invest == True:
             if MONEY_SCRAPPERS[invest_money].invest != 0 :
-                MONEY_SCRAPPERS[invest_money].invest=MONEY_SCRAPPERS[invest_money].invest+int(Entry_text.get())
+                MONEY_SCRAPPERS[invest_money].my_invest=MONEY_SCRAPPERS[invest_money].invest+int(Entry_text.get())/MONEY_SCRAPPERS[invest_money].dataFrame['Value'][MONEY_SCRAPPERS[invest_money].dataFrame.dataFrame.shape[0]-2]
+ 
                 MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
                 
             elif MONEY_SCRAPPERS[invest_money].invest == 0:
-                MONEY_SCRAPPERS[invest_money].stock_invest=MONEY_SCRAPPERS[invest_money].stock_invest.invest+int(Entry_text.get())
+                MONEY_SCRAPPERS[invest_money].stock_invest=MONEY_SCRAPPERS[invest_money].stock_invest+int(Entry_text.get())
                 MONEY_SCRAPPERS[invest_money].compte=MONEY_SCRAPPERS[invest_money].compte-int(Entry_text.get())
             
         elif flag==False:
